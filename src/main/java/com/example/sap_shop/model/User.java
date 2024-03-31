@@ -1,9 +1,6 @@
 package com.example.sap_shop.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class User {
@@ -11,11 +8,17 @@ public class User {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
 
-    private String name;
+    @Column(nullable = false, unique = true)
+    private String username;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, length = 20)
+    private String type;
 
     public Integer getId() {
         return id;
@@ -25,12 +28,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -47,5 +50,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
