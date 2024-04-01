@@ -2,6 +2,8 @@ package com.example.sap_shop.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 public class User {
     @Id
@@ -17,8 +19,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20)
-    private String type;
+    @ElementCollection
+    @Column(name = "role")
+    private List<String> roles;
 
     public Integer getId() {
         return id;
@@ -52,11 +55,11 @@ public class User {
         this.password = password;
     }
 
-    public String getType() {
-        return type;
+    public List<String> getRoles() {
+        return roles;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 }
