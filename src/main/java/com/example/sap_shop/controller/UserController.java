@@ -1,7 +1,7 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.model.User;
-import com.example.sap_shop.model.UserRepository;
+import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
