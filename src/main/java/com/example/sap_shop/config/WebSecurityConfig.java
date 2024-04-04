@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -20,20 +21,22 @@ import org.springframework.web.filter.CorsFilter;
 @EnableWebSecurity
 public class WebSecurityConfig{
 
+    //@Autowired
+    //private JwtRequestFilter jwtRequestFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((requests) -> {
-                    requests.requestMatchers("/home").permitAll();
-                    requests.requestMatchers("/signup").permitAll();
-                    requests.requestMatchers("/admin/**").hasRole("ADMIN");
+                    requests.requestMatchers("/home", "/signup", "/loginpage").permitAll();
+                    requests.requestMatchers("/admin/**").hasRole("ADMIN");//hasAuthority
                     requests.requestMatchers("/user/**").hasRole("USER");
-                    requests.requestMatchers("/loginpage").permitAll();
                     requests.anyRequest().authenticated();
 
                 })
                 .formLogin(formLogin -> formLogin.disable())
                 .csrf(AbstractHttpConfigurer::disable);
+                //.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
