@@ -7,7 +7,7 @@ import java.util.List;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false, unique = true)
@@ -19,9 +19,9 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @ElementCollection
-    @Column(name = "role")
-    private List<String> roles;
+    @ManyToMany
+    @JoinTable(joinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 
     public Integer getId() {
         return id;
@@ -55,11 +55,11 @@ public class User {
         this.password = password;
     }
 
-    public List<String> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<String> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 }

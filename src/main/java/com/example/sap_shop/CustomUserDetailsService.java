@@ -1,5 +1,6 @@
 package com.example.sap_shop;
 
+import com.example.sap_shop.model.Role;
 import com.example.sap_shop.model.User;
 import com.example.sap_shop.model.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getUsername(), user.getPassword(), getAuthorities(user.getRoles()));
     }
 
-    private static List<GrantedAuthority> getAuthorities (List<String> roles) {
+    private static List<GrantedAuthority> getAuthorities (List<Role> roles) {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role));
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
         }
         return authorities;
     }
