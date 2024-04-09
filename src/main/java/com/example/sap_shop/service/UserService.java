@@ -28,7 +28,7 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
-    public User registerNewUser(UserDto userDto) throws UserAlreadyExistException {
+    public void registerNewUser(UserDto userDto) throws UserAlreadyExistException {
         if(userRepository.findByEmail(userDto.getEmail()) != null){
             throw new UserAlreadyExistException("User with that email already exists");
         }
@@ -43,7 +43,7 @@ public class UserService {
         Role role = new Role();
         role.setId(2);
         user.setRoles(List.of(role));
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public String loginUser(UserDto userDto) throws InvalidLoginCredentialException {
