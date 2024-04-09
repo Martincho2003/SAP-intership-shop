@@ -2,7 +2,7 @@ package com.example.sap_shop;
 
 import com.example.sap_shop.model.Role;
 import com.example.sap_shop.model.User;
-import com.example.sap_shop.model.UserRepository;
+import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
