@@ -22,6 +22,9 @@ public class User {
     @ManyToMany
     @JoinTable(joinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
+    
+    @OneToMany
+    private List<Order> orders;
 
     public Integer getId() {
         return id;
