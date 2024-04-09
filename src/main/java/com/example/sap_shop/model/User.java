@@ -19,6 +19,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @ManyToMany
+    @JoinTable(joinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
+    
     @OneToMany
     private List<Order> orders;
 
@@ -54,4 +58,11 @@ public class User {
         this.password = password;
     }
 
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
 }
