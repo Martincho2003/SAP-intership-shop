@@ -1,6 +1,7 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.dto.UserDto;
+import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
 import com.example.sap_shop.error.UserAlreadyExistException;
 import com.example.sap_shop.service.UserService;
@@ -21,7 +22,6 @@ public class UserController {
         this.userService = userService;
     }
 
-
     @PostMapping(path="/signup")
     public ResponseEntity addNewUser (@RequestBody UserDto userDto) {
         HashMap<String, String> answer = new HashMap<>();
@@ -31,6 +31,9 @@ public class UserController {
         } catch (UserAlreadyExistException uaeEx) {
             answer.put("error", uaeEx.getMessage());
             return ResponseEntity.status(409).body(answer);
+        } catch (EmptyCredentialException e) {
+            answer.put("error", e.getMessage());
+            return ResponseEntity.status(403).body(answer);
         }
     }
 

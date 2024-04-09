@@ -1,6 +1,7 @@
 package com.example.sap_shop.service;
 
 import com.example.sap_shop.dto.UserDto;
+import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
 import com.example.sap_shop.error.UserAlreadyExistException;
 import com.example.sap_shop.model.JwtUtil;
@@ -28,7 +29,10 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
-    public void registerNewUser(UserDto userDto) throws UserAlreadyExistException {
+    public void registerNewUser(UserDto userDto) throws UserAlreadyExistException, EmptyCredentialException {
+        if(!checkEmptyFields(userDto)){
+            throw new EmptyCredentialException();
+        }
         if(userRepository.findByEmail(userDto.getEmail()) != null){
             throw new UserAlreadyExistException("User with that email already exists");
         }
@@ -44,6 +48,10 @@ public class UserService {
         role.setId(2);
         user.setRoles(List.of(role));
         userRepository.save(user);
+    }
+
+    public boolean checkEmptyFields(UserDto userDto){
+        return !userDto.getUsername().isEmpty() && !userDto.getPassword().isEmpty() && !userDto.getEmail().isEmpty();
     }
 
     public String loginUser(UserDto userDto) throws InvalidLoginCredentialException {

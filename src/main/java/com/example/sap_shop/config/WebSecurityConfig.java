@@ -60,10 +60,10 @@ public class WebSecurityConfig{
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOriginPattern(""); // Configure as needed
-        config.addAllowedHeader("");
+        config.addAllowedOriginPattern("http://localhost:3000"); // Configure as needed
+        config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/", config);
+        source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
 }
