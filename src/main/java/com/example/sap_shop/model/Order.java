@@ -18,7 +18,7 @@ public class Order {
     @Column(nullable = false)
     private String status;
 
-    @OneToMany
+    @OneToMany()
     private List<OrderItem> orderItems;
 
 }

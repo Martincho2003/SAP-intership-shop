@@ -23,6 +23,8 @@ public class Sale {
     @Column(nullable = false)
     private Date endDate;
 
+    private Integer percentage;
+
     @OneToMany
     private List<Category> categories;
 }

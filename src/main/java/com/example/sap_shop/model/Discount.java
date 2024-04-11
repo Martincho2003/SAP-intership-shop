@@ -22,6 +22,8 @@ public class Discount {
     @Column(nullable = false)
     private Date endDate;
 
+    private Integer percentage;
     @OneToMany
     private List<Product> products;
+
 }
