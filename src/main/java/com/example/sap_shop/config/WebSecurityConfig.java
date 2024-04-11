@@ -35,6 +35,7 @@ public class WebSecurityConfig{
                 .authorizeHttpRequests((requests) -> {
                     requests.requestMatchers("/home", "/signup", "/login").permitAll();
                     requests.requestMatchers("/admin/**").hasRole("ADMIN");
+                    requests.requestMatchers("/product/create").hasAnyRole("ADMIN", "WORKER");
                     requests.requestMatchers("/user/**").hasRole("USER");
                     requests.anyRequest().authenticated();
 
