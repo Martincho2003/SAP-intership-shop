@@ -25,9 +25,6 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
 
-    @OneToMany(mappedBy = "", fetch = FetchType.LAZY)
-    private List<OrderItem> orderItem;
-
     public Long getId() {
         return id;
     }
@@ -74,13 +71,5 @@ public class Product {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
-    }
-
-    public List<OrderItem> getOrderItem() {
-        return orderItem;
-    }
-
-    public void setOrderItems(List<OrderItem> orderItem) {
-        this.orderItem = orderItem;
     }
 }

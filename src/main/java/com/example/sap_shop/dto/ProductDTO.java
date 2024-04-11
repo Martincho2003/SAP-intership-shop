@@ -1,7 +1,9 @@
 package com.example.sap_shop.dto;
 
 public class ProductDTO {
+
     private String name;
+    private String description;
     private Float price;
     private Integer quantity;
     private String imagePath;
@@ -10,13 +12,13 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(String name, Float price, Integer quantity, String imagePath) {
+    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath) {
         this.name = name;
+        this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.imagePath = imagePath;
     }
-
 
     public String getName() {
         return name;
@@ -48,5 +50,13 @@ public class ProductDTO {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
