@@ -1,17 +1,17 @@
 package com.example.sap_shop.service;
 
-import com.example.sap_shop.dto.UserDto;
+import com.example.sap_shop.dto.*;
 import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
 import com.example.sap_shop.error.UserAlreadyExistException;
-import com.example.sap_shop.model.JwtUtil;
-import com.example.sap_shop.model.Role;
-import com.example.sap_shop.model.User;
+import com.example.sap_shop.model.*;
 import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -63,5 +63,61 @@ public class UserService {
             throw new InvalidLoginCredentialException("Password for this user is incorrect");
         }
         return jwtUtil.generateToken(userDto.getUsername());
+    }
+
+    public UserDto getProfileInfo(String token){
+        User user = userRepository.findByUsername(jwtUtil.extractUsername(token));
+        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
+        shoppingCartDTO.setOrderItemDTOS(OrderItemListToOrderItemDtoList(user.getShoppingCart().getOrderItems()));
+
+        List<OrderDTO> orderDTOS = new ArrayList<>();
+        for(Order order : user.getOrders()){
+            OrderDTO orderDTO = new OrderDTO();
+            orderDTO.setOrderDate(order.getOrderDate());
+            orderDTO.setStatus(order.getStatus());
+
+            orderDTO.setOrderItems(OrderItemListToOrderItemDtoList(order.getOrderItems()));
+            orderDTOS.add(orderDTO);
+        }
+        return new UserDto(user.getUsername(), user.getEmail(), shoppingCartDTO, orderDTOS);
+    }
+
+    private List<OrderItemDTO> OrderItemListToOrderItemDtoList(List<OrderItem> orderItems){
+        List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
+        for(OrderItem orderItem : orderItems){
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setDescription(orderItem.getProduct().getDescription());
+            productDTO.setPrice(orderItem.getProduct().getPrice());
+            productDTO.setQuantity(orderItem.getProduct().getQuantity());
+            productDTO.setName(orderItem.getProduct().getName());
+
+            OrderItemDTO orderItemDTO = new OrderItemDTO();
+            orderItemDTO.setProduct(productDTO);
+            orderItemDTO.setQuantity(orderItem.getQuantity());
+
+            orderItemDTOS.add(orderItemDTO);
+        }
+        return orderItemDTOS;
+    }
+
+    public void updateUserRole(UserDto userDto, List<String> roles){
+        User user = userRepository.findByUsername(userDto.getUsername());
+        List<Role> rolesNew = new ArrayList<>();
+        for(String role: roles){
+            Role role1 = new Role();
+            if(role.equals("ADMIN")){
+                role1.setId(1);
+                rolesNew.add(role1);
+            }
+            if(role.equals("USER")){
+                role1.setId(2);
+                rolesNew.add(role1);
+            }
+            if(role.equals("WORKER")){
+                role1.setId(3);
+                rolesNew.add(role1);
+            }
+        }
+        user.setRoles(rolesNew);
     }
 }
