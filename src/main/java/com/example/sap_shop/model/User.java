@@ -26,6 +26,9 @@ public class User {
     @OneToMany
     private List<Order> orders;
 
+    @OneToOne
+    private ShoppingCart shoppingCart;
+
     public Long getId() {
         return id;
     }
@@ -64,5 +67,21 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
     }
 }

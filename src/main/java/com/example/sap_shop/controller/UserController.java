@@ -49,4 +49,13 @@ public class UserController {
             return ResponseEntity.status(401).body(answer);
         }
     }
+
+    @GetMapping("/user")
+    public ResponseEntity getProfile(@RequestHeader("Authorization") String token){
+        HashMap<String, String> answer = new HashMap<>();
+
+        UserDto userDto = userService.getProfileInfo(token);
+        answer.put("name", userDto.getUsername());
+        return ResponseEntity.ok(answer);
+    }
 }
