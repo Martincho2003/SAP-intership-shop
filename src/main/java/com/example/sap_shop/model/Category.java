@@ -13,9 +13,12 @@ public class Category {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "category")
     private List<Product> products;
 
+    @ManyToOne
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
 
     public Long getId() {
         return id;
