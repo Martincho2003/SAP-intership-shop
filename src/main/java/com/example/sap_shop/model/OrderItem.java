@@ -35,5 +35,11 @@ public class OrderItem {
         this.quantity = quantity;
     }
 
+    public Product getProduct() {
+        return product;
+    }
 
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 }

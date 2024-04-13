@@ -7,7 +7,19 @@ public class UserDto {
     private String username;
     private String email;
     private String password;
-    private List<String> roles;
+    private ShoppingCartDTO shoppingCartDTO;
+    private List<OrderDTO> orderDTOS;
+
+    public UserDto() {
+    }
+
+
+    public UserDto(String username, String email, ShoppingCartDTO shoppingCartDTO, List<OrderDTO> orderDTOS) {
+        this.username = username;
+        this.email = email;
+        this.shoppingCartDTO = shoppingCartDTO;
+        this.orderDTOS = orderDTOS;
+    }
 
     public String getPassword() {
         return password;
@@ -33,11 +45,19 @@ public class UserDto {
         this.email = email;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public ShoppingCartDTO getShoppingCartDTO() {
+        return shoppingCartDTO;
     }
 
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
+    public void setShoppingCartDTO(ShoppingCartDTO shoppingCartDTO) {
+        this.shoppingCartDTO = shoppingCartDTO;
+    }
+
+    public List<OrderDTO> getOrderDTOS() {
+        return orderDTOS;
+    }
+
+    public void setOrderDTOS(List<OrderDTO> orderDTOS) {
+        this.orderDTOS = orderDTOS;
     }
 }
