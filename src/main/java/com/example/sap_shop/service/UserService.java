@@ -5,6 +5,7 @@ import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
 import com.example.sap_shop.error.UserAlreadyExistException;
 import com.example.sap_shop.model.*;
+import com.example.sap_shop.repository.ShoppingCartRepository;
 import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,12 +20,14 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, ShoppingCartRepository shoppingCartRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.shoppingCartRepository = shoppingCartRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
@@ -44,10 +47,24 @@ public class UserService {
         user.setUsername(userDto.getUsername());
         user.setPassword(userDto.getPassword());
         user.setEmail(userDto.getEmail());
+        List<Role> roles = new ArrayList<>();
         Role role = new Role();
         role.setId(2);
-        user.setRoles(List.of(role));
+        roles.add(role);
+        user.setRoles(roles);
+        user.setOrders(new ArrayList<>());
         userRepository.save(user);
+
+        user = userRepository.findByUsername(userDto.getUsername());
+
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUser(user);
+        shoppingCartRepository.save(shoppingCart);
+
+
+        user.setShoppingCart(shoppingCartRepository.findByUser(user));
+        userRepository.save(user);
+
     }
 
     public boolean checkEmptyFields(UserDto userDto){
@@ -66,7 +83,7 @@ public class UserService {
     }
 
     public UserDto getProfileInfo(String token){
-        User user = userRepository.findByUsername(jwtUtil.extractUsername(token));
+        User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
         shoppingCartDTO.setOrderItemDTOS(OrderItemListToOrderItemDtoList(user.getShoppingCart().getOrderItems()));
 
@@ -100,8 +117,8 @@ public class UserService {
         return orderItemDTOS;
     }
 
-    public void updateUserRole(UserDto userDto, List<String> roles){
-        User user = userRepository.findByUsername(userDto.getUsername());
+    public void updateUserRole(String username, List<String> roles){
+        User user = userRepository.findByUsername(username);
         List<Role> rolesNew = new ArrayList<>();
         for(String role: roles){
             Role role1 = new Role();
@@ -119,5 +136,6 @@ public class UserService {
             }
         }
         user.setRoles(rolesNew);
+        userRepository.save(user);
     }
 }

@@ -14,6 +14,9 @@ public class ShoppingCart {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    @OneToOne
+    private User user;
+
     public Long getId() {
         return id;
     }
@@ -28,5 +31,13 @@ public class ShoppingCart {
 
     public void setOrderItems(List<OrderItem> orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

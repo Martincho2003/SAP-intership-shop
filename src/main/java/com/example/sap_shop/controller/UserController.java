@@ -50,9 +50,10 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/user", consumes = "html/text")
+    @GetMapping("/user")
     public ResponseEntity getProfile(@RequestHeader("Authorization") String token){
         HashMap<String, String> answer = new HashMap<>();
+
         UserDto userDto = userService.getProfileInfo(token);
         answer.put("name", userDto.getUsername());
         return ResponseEntity.ok(answer);
