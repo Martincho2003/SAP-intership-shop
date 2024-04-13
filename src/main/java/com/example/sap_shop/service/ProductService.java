@@ -44,38 +44,29 @@ public class ProductService {
     }
 
     @Transactional
-    public void deleteProduct(String name) {
-        try {
-            if (productRepository.findByName(name) == null) {
-                throw new ProductNotFoundException("Product not found with name: " + name);
-            }
-            productRepository.findByName(name);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to delete the product: " + e.getMessage(), e);
+    public void deleteProduct(String name) throws ProductNotFoundException {
+
+        if (productRepository.findByName(name) == null) {
+            throw new ProductNotFoundException("Product not found with name: " + name); // opravi greshkata negramotnik
         }
+        productRepository.deleteByName(name);
+
     }
 
     public List<ProductDTO> findAllProducts() {
-        try {
             return productRepository.findAll().stream()
                     .map(this::convertToDTO)
                     .collect(Collectors.toList());
-        } catch (Exception e) {
-            // Log the exception and rethrow as a custom or runtime exception
-            throw new RuntimeException("Failed to retrieve all products: " + e.getMessage(), e);
-        }
+
     }
 
     public List<ProductDTO> findByNameContainingIgnoreCase(String name) {
-        try {
-            List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
-            return products.stream()
-                    .map(this::convertToDTO)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            // Log the exception and rethrow as a custom or runtime exception
-            throw new RuntimeException("Failed to retrieve products by name: " + e.getMessage(), e);
-        }
+
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
     }
 
     private ProductDTO convertToDTO(Product product) {
