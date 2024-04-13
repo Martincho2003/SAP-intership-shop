@@ -14,7 +14,7 @@ public class ShoppingCart {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
-    @OneToOne
+    @OneToOne(mappedBy = "shoppingCart")
     private User user;
 
     public Long getId() {

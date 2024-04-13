@@ -25,6 +25,6 @@ public class Sale {
 
     private Integer percentage;
 
-    @OneToMany
+    @OneToMany(mappedBy = "sale")
     private List<Category> categories;
 }

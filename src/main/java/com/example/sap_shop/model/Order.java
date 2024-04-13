@@ -18,7 +18,7 @@ public class Order {
     @Column(nullable = false)
     private String status;
 
-    @OneToMany()
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
 
     public Long getId() {

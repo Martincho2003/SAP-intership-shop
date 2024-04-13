@@ -23,7 +23,14 @@ public class Product {
     private Float price;
 
     @Column(nullable = false)
+    private Float minPrice;
+
+    @Column(nullable = false)
     private Integer quantity;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     public Long getId() {
         return id;
@@ -71,5 +78,21 @@ public class Product {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public Float getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Float minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }

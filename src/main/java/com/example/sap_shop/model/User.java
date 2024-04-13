@@ -26,7 +26,8 @@ public class User {
     @OneToMany
     private List<Order> orders;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shopping_cart_id", referencedColumnName = "id")
     private ShoppingCart shoppingCart;
 
     public Long getId() {
