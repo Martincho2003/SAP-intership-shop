@@ -25,7 +25,7 @@ public class ProductService {
     @Transactional
     public void createProduct(ProductDTO productDTO) throws ProductAlreadyExistException, FieldCannotBeEmptyException {
         if(productRepository.findByName(productDTO.getName()) != null){
-            throw new ProductAlreadyExistException("Product already exist");
+            throw new ProductAlreadyExistException("Product already exist.");
         }
 
         Product product = new Product();
@@ -47,7 +47,7 @@ public class ProductService {
     public void deleteProduct(String name) throws ProductNotFoundException {
 
         if (productRepository.findByName(name) == null) {
-            throw new ProductNotFoundException("Product not found with name: " + name); // opravi greshkata negramotnik
+            throw new ProductNotFoundException("Product with name " + name + " doesn't exist.");
         }
         productRepository.deleteByName(name);
 
@@ -66,6 +66,7 @@ public class ProductService {
         return products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
 
     }
 

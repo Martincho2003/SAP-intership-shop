@@ -28,10 +28,10 @@ public class ProductController {
         try {
             productService.createProduct(productDTO);
             return ResponseEntity.ok().body("Product created successfully.");
-        } catch (ProductAlreadyExistException e) {
-            return ResponseEntity.status(409).body("Error: " + e.getMessage());
         } catch (FieldCannotBeEmptyException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(409).body("Fields can not be empty!");
+        } catch (ProductAlreadyExistException e) {
+            return ResponseEntity.status(409).body("Product already exists!");
         }
     }
 
