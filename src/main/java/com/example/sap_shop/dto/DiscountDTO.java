@@ -14,12 +14,12 @@ public class DiscountDTO {
     public DiscountDTO() {
     }
 
-    public DiscountDTO(String name, Date startDate, Date endDate, Integer percentage) {
+    public DiscountDTO(String name, Date startDate, Date endDate, Integer percentage, List<ProductDTO> productDTOS) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.percentage = percentage;
-        this.productDTOS = new ArrayList<>();
+        this.productDTOS = productDTOS;
     }
 
     public String getName() {

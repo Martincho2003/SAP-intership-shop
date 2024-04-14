@@ -5,8 +5,7 @@ import java.util.List;
 public class ShoppingCartDTO {
     private List<OrderItemDTO> orderItemDTOS;
 
-    public ShoppingCartDTO() {
-    }
+    public ShoppingCartDTO() {}
 
     public ShoppingCartDTO(List<OrderItemDTO> orderItemDTOS) {
         this.orderItemDTOS = orderItemDTOS;
