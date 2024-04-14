@@ -82,6 +82,14 @@ public class UserService {
         return jwtUtil.generateToken(userDto.getUsername());
     }
 
+    public List<String> getUserRoles(UserDto userDto) throws InvalidLoginCredentialException {
+        User user;
+        if ((user = userRepository.findByUsername(userDto.getUsername())) == null) {
+            throw new InvalidLoginCredentialException("User with this username is not found");
+        }
+        return user.getRoles().stream().map(Role::getRole).toList();
+    }
+
     public UserDto getProfileInfo(String token){
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();

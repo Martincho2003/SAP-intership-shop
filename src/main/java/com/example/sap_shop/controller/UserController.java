@@ -43,6 +43,9 @@ public class UserController {
         try {
             String token = userService.loginUser(userDto);
             answer.put("token", token);
+            for(String role : userService.getUserRoles(userDto)){
+                answer.put("role", role);
+            }
             return ResponseEntity.ok(answer);
         } catch (InvalidLoginCredentialException e) {
             answer.put("error", e.getMessage());
