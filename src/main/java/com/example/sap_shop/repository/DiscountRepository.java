@@ -9,4 +9,5 @@ import java.util.List;
 public interface DiscountRepository extends CrudRepository<Discount, Long> {
     List<Discount> findByEndDate(Date endDate);
     List<Discount> findByStartDate(Date startDate);
+    Discount findByName(String name);
 }

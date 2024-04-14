@@ -26,8 +26,7 @@ public class DiscountService {
         this.productRepository = productRepository;
     }
 
-    public void createDiscount(DiscountDTO discountDTO){
-        Discount discount = new Discount();
+    private void setDiscountFromDiscountDto(Discount discount, DiscountDTO discountDTO){
         List<Product> products = new ArrayList<>();
         for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
             Product product = productRepository.findByName(productDTO.getName());
@@ -38,7 +37,22 @@ public class DiscountService {
         discount.setEndDate(discountDTO.getEndDate());
         discount.setStartDate(discountDTO.getStartDate());
         discount.setPercentage(discountDTO.getPercentage());
+    }
+
+    public void createDiscount(DiscountDTO discountDTO){
+        Discount discount = new Discount();
+        setDiscountFromDiscountDto(discount, discountDTO);
         discountRepository.save(discount);
+    }
+
+    public void updateDiscount(DiscountDTO discountDTO){
+        Discount discount = discountRepository.findByName(discountDTO.getName());
+        setDiscountFromDiscountDto(discount, discountDTO);
+        discountRepository.save(discount);
+    }
+
+    public void deleteDiscount(String discountName){
+        discountRepository.delete(discountRepository.findByName(discountName));
     }
 
     @Scheduled(cron = "23 59 50 * * *")

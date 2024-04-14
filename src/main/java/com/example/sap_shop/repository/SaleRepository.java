@@ -10,4 +10,5 @@ import java.util.List;
 public interface SaleRepository extends CrudRepository<Sale, Long> {
     List<Sale> findByEndDate(Date endDate);
     List<Sale> findByStartDate(Date startDate);
+    Sale findByName(String name);
 }

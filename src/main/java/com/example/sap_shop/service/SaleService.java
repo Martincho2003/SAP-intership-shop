@@ -4,7 +4,6 @@ import com.example.sap_shop.dto.CategoryDTO;
 import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.dto.SaleDto;
 import com.example.sap_shop.model.Category;
-import com.example.sap_shop.model.Discount;
 import com.example.sap_shop.model.Product;
 import com.example.sap_shop.model.Sale;
 import com.example.sap_shop.repository.CategoryRepository;
@@ -32,8 +31,7 @@ public class SaleService {
         this.productRepository = productRepository;
     }
 
-    public void createSale(SaleDto saleDto){
-        Sale sale = new Sale();
+    private void setSaleFromSaleDto(Sale sale, SaleDto saleDto){
         List<Category> categoryList = new ArrayList<>();
         for(CategoryDTO categoryDTO : saleDto.getCategoryDTOS()){
             Category category = new Category();
@@ -51,7 +49,22 @@ public class SaleService {
         sale.setStartDate(saleDto.getStartDate());
         sale.setEndDate(saleDto.getEndDate());
         sale.setName(sale.getName());
+    }
+
+    public void createSale(SaleDto saleDto){
+        Sale sale = new Sale();
+        setSaleFromSaleDto(sale, saleDto);
         saleRepository.save(sale);
+    }
+
+    public void updateSale(SaleDto saleDto){
+        Sale sale = saleRepository.findByName(saleDto.getName());
+        setSaleFromSaleDto(sale, saleDto);
+        saleRepository.save(sale);
+    }
+
+    public void deleteSale(String saleName){
+        saleRepository.delete(saleRepository.findByName(saleName));
     }
 
     @Scheduled(cron = "23 59 50 * * *")
