@@ -11,7 +11,9 @@ import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -51,22 +53,57 @@ public class SaleService {
         sale.setName(sale.getName());
     }
 
+    @Transactional
     public void createSale(SaleDto saleDto){
         Sale sale = new Sale();
         setSaleFromSaleDto(sale, saleDto);
         saleRepository.save(sale);
     }
 
+    @Transactional
     public void updateSale(SaleDto saleDto){
         Sale sale = saleRepository.findByName(saleDto.getName());
-        setSaleFromSaleDto(sale, saleDto);
+        sale.setPercentage(saleDto.getPercentage());
+        sale.setStartDate(saleDto.getStartDate());
+        sale.setEndDate(saleDto.getEndDate());
+        sale.setName(sale.getName());
         saleRepository.save(sale);
     }
 
+    public SaleDto getSaleByName(String saleName){
+        Sale sale = saleRepository.findByName(saleName);
+        SaleDto saleDto = new SaleDto();
+        saleDto.setName(sale.getName());
+        saleDto.setPercentage(sale.getPercentage());
+        saleDto.setStartDate(sale.getStartDate());
+        saleDto.setEndDate(sale.getEndDate());
+        List<CategoryDTO> categoryDTOS = new ArrayList<>();
+        for(Category category : sale.getCategories()){
+            CategoryDTO categoryDTO = new CategoryDTO();
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            categoryDTO.setName(category.getName());
+            for(Product product : category.getProducts()){
+                ProductDTO productDTO = new ProductDTO();
+                productDTO.setName(product.getName());
+                productDTO.setDescription(product.getDescription());
+                productDTO.setPrice(product.getPrice());
+                productDTO.setMinPrice(product.getMinPrice());
+                productDTO.setQuantity(product.getQuantity());
+                productDTO.setImagePath(product.getImagePath());
+                productDTOS.add(productDTO);
+            }
+            categoryDTOS.add(categoryDTO);
+        }
+        saleDto.setCategoryDTOS(categoryDTOS);
+        return saleDto;
+    }
+
+    @Transactional
     public void deleteSale(String saleName){
         saleRepository.delete(saleRepository.findByName(saleName));
     }
 
+    @Transactional
     @Scheduled(cron = "23 59 50 * * *")
     public void updatePriceOnExpiredSales(){
         List<Sale> sales = saleRepository.findByEndDate(new Date());
@@ -81,6 +118,7 @@ public class SaleService {
         }
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void updatePriceOnActivatedSales(){
         List<Sale> sales = saleRepository.findByStartDate(new Date());

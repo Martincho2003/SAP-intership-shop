@@ -32,6 +32,7 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public void registerNewUser(UserDto userDto) throws UserAlreadyExistException, EmptyCredentialException {
         if(!checkEmptyFields(userDto)){
             throw new EmptyCredentialException();
@@ -125,6 +126,7 @@ public class UserService {
         return orderItemDTOS;
     }
 
+    @Transactional
     public void updateUser(String token, UserDto userDto){
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         user.setUsername(userDto.getUsername());
@@ -133,6 +135,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public void updateUserRole(String username, List<String> roles){
         User user = userRepository.findByUsername(username);
         List<Role> rolesNew = new ArrayList<>();

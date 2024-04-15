@@ -12,6 +12,7 @@ import com.example.sap_shop.repository.ShoppingCartRepository;
 import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ public class ShoppingCartService {
         return shoppingCartDTO;
     }
 
+    @Transactional
     public void addProductToShoppingCart(String token, OrderItemDTO orderItemDTO){
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
@@ -65,6 +67,7 @@ public class ShoppingCartService {
         shoppingCartRepository.save(shoppingCart);
     }
 
+    @Transactional
     public void removeProductFromShoppingCart(String token, OrderItemDTO orderItemDTO){
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
@@ -75,6 +78,7 @@ public class ShoppingCartService {
         shoppingCartRepository.save(shoppingCart);
     }
 
+    @Transactional
     public void changeProductQuantityToShoppingCart(String token, OrderItemDTO orderItemDTO){
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();

@@ -9,6 +9,7 @@ import com.example.sap_shop.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,22 +40,26 @@ public class DiscountService {
         discount.setPercentage(discountDTO.getPercentage());
     }
 
+    @Transactional
     public void createDiscount(DiscountDTO discountDTO){
         Discount discount = new Discount();
         setDiscountFromDiscountDto(discount, discountDTO);
         discountRepository.save(discount);
     }
 
+    @Transactional
     public void updateDiscount(DiscountDTO discountDTO){
         Discount discount = discountRepository.findByName(discountDTO.getName());
         setDiscountFromDiscountDto(discount, discountDTO);
         discountRepository.save(discount);
     }
 
+    @Transactional
     public void deleteDiscount(String discountName){
         discountRepository.delete(discountRepository.findByName(discountName));
     }
 
+    @Transactional
     @Scheduled(cron = "23 59 50 * * *")
     public void updatePriceOnExpiredDiscounts(){
         List<Discount> discounts = discountRepository.findByEndDate(new Date());
@@ -67,6 +72,7 @@ public class DiscountService {
         }
     }
 
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     public void updatePriceOnActivatedDiscounts(){
         List<Discount> discounts = discountRepository.findByStartDate(new Date());
