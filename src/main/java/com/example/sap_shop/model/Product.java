@@ -23,6 +23,9 @@ public class Product {
     private Float price;
 
     @Column(nullable = false)
+    private Float discountPrice;
+
+    @Column(nullable = false)
     private Float minPrice;
 
     @Column(nullable = false)
@@ -94,5 +97,13 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Float getDiscountPrice() {
+        return discountPrice;
+    }
+
+    public void setDiscountPrice(Float discountPrice) {
+        this.discountPrice = discountPrice;
     }
 }
