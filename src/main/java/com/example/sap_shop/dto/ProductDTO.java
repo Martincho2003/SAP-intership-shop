@@ -1,5 +1,7 @@
 package com.example.sap_shop.dto;
 
+import com.example.sap_shop.model.Category;
+
 public class ProductDTO {
 
     private String name;
@@ -8,17 +10,19 @@ public class ProductDTO {
     private Integer quantity;
     private String imagePath;
     private Float minPrice;
+    private CategoryDTO categoryDTO;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath, Float minPrice) {
+    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath, Float minPrice, CategoryDTO categoryDTO) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.imagePath = imagePath;
         this.minPrice = minPrice;
+        this.categoryDTO = categoryDTO;
     }
 
     public String getName() {
@@ -67,5 +71,13 @@ public class ProductDTO {
 
     public void setMinPrice(Float minPrice) {
         this.minPrice = minPrice;
+    }
+
+    public CategoryDTO getCategoryDTO() {
+        return categoryDTO;
+    }
+
+    public void setCategoryDTO(CategoryDTO categoryDTO) {
+        this.categoryDTO = categoryDTO;
     }
 }

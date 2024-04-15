@@ -1,6 +1,7 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.dto.ProductDTO;
+import com.example.sap_shop.error.CategoryNotFoundException;
 import com.example.sap_shop.error.FieldCannotBeEmptyException;
 import com.example.sap_shop.error.ProductAlreadyExistException;
 import com.example.sap_shop.error.ProductNotFoundException;
@@ -29,20 +30,30 @@ public class ProductController {
             productService.createProduct(productDTO);
             return ResponseEntity.ok().body("Product created successfully.");
         } catch (FieldCannotBeEmptyException e) {
-            return ResponseEntity.status(409).body("Fields can not be empty!");
+            return ResponseEntity.status(409).body(e.getMessage());
         } catch (ProductAlreadyExistException e) {
-            return ResponseEntity.status(409).body("Product already exists!");
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (CategoryNotFoundException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    @PostMapping("/{productName}/assignCategory")
+    public ResponseEntity<?> assignProductToCategory(@PathVariable String productName, @RequestParam String categoryName) {
+        try {
+            productService.updateCategory(productName, categoryName);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (CategoryNotFoundException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        }
+        return ResponseEntity.ok().body("Product assigned properly.");
     }
 
     @GetMapping
     public ResponseEntity<?> getAllProducts() {
-        try {
-            List<ProductDTO> products = productService.findAllProducts();
+            List<ProductDTO> products = productService.getAllProducts();
             return ResponseEntity.ok(products);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Failed to retrieve products: " + e.getMessage());
-        }
     }
 
     @GetMapping("/search")
@@ -57,7 +68,7 @@ public class ProductController {
     public ResponseEntity<?> deleteProduct(@PathVariable String name) {
         try {
             productService.deleteProduct(name);
-            return ResponseEntity.ok().body("successful");
+            return ResponseEntity.ok().body("Product deleted successfully.");
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(403).body(e.getMessage());
         }

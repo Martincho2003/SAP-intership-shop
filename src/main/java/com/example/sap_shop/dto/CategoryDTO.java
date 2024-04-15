@@ -10,9 +10,9 @@ public class CategoryDTO {
     public CategoryDTO() {
     }
 
-    public CategoryDTO(String name) {
+    public CategoryDTO(String name, List<ProductDTO> productDTOS) {
         this.name = name;
-        this.productDTOS = new ArrayList<>();
+        this.productDTOS = productDTOS;
     }
 
     public String getName() {

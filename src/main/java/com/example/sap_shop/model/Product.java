@@ -1,6 +1,7 @@
 package com.example.sap_shop.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -28,9 +29,12 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    private Float discountPrice;
 
     public Long getId() {
         return id;
@@ -94,5 +98,13 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Float getDiscountPrice() {
+        return discountPrice;
+    }
+
+    public void setDiscountPrice(Float discountPrice) {
+        this.discountPrice = discountPrice;
     }
 }

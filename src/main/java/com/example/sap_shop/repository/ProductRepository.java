@@ -1,5 +1,6 @@
 package com.example.sap_shop.repository;
 
+import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Product findByName(String name);
 
     void deleteByName(String name);
+
+    List<Product> findByCategoryName(String categoryName);
 }
