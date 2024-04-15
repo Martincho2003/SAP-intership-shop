@@ -16,10 +16,6 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 
-    @ManyToOne
-    @JoinColumn(name = "sale_id")
-    private Sale sale;
-
     public Long getId() {
         return id;
     }
@@ -34,14 +30,6 @@ public class Category {
 
     public void setProducts(List<Product> products) {
         this.products = products;
-    }
-
-    public Sale getSale() {
-        return sale;
-    }
-
-    public void setSale(Sale sale) {
-        this.sale = sale;
     }
 
     public String getName() {

@@ -125,6 +125,14 @@ public class UserService {
         return orderItemDTOS;
     }
 
+    public void updateUser(String token, UserDto userDto){
+        User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
+        user.setUsername(userDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setEmail(userDto.getEmail());
+        userRepository.save(user);
+    }
+
     public void updateUserRole(String username, List<String> roles){
         User user = userRepository.findByUsername(username);
         List<Role> rolesNew = new ArrayList<>();

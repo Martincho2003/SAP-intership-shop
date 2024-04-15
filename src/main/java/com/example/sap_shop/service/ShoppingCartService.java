@@ -6,6 +6,8 @@ import com.example.sap_shop.dto.ShoppingCartDTO;
 import com.example.sap_shop.model.JwtUtil;
 import com.example.sap_shop.model.OrderItem;
 import com.example.sap_shop.model.ShoppingCart;
+import com.example.sap_shop.repository.OrderItemRepository;
+import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.ShoppingCartRepository;
 import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +21,16 @@ public class ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
     private final UserRepository userRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ProductRepository productRepository;
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public ShoppingCartService(ShoppingCartRepository shoppingCartRepository, UserRepository userRepository, OrderItemRepository orderItemRepository, ProductRepository productRepository, JwtUtil jwtUtil) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.userRepository = userRepository;
+        this.orderItemRepository = orderItemRepository;
+        this.productRepository = productRepository;
         this.jwtUtil = jwtUtil;
     }
 
@@ -45,5 +51,38 @@ public class ShoppingCartService {
         }
         shoppingCartDTO.setOrderItemDTOS(orderItemDTOS);
         return shoppingCartDTO;
+    }
+
+    public void addProductToShoppingCart(String token, OrderItemDTO orderItemDTO){
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        OrderItem orderItem = new OrderItem();
+        orderItem.setProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
+        orderItem.setQuantity(orderItemDTO.getQuantity());
+        orderItemRepository.save(orderItem);
+        orderItems.add(orderItem);
+        shoppingCart.setOrderItems(orderItems);
+        shoppingCartRepository.save(shoppingCart);
+    }
+
+    public void removeProductFromShoppingCart(String token, OrderItemDTO orderItemDTO){
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        OrderItem orderItemToDelete = orderItemRepository.findByProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
+        orderItems.remove(orderItemToDelete);
+        shoppingCart.setOrderItems(orderItems);
+        orderItemRepository.delete(orderItemToDelete);
+        shoppingCartRepository.save(shoppingCart);
+    }
+
+    public void changeProductQuantityToShoppingCart(String token, OrderItemDTO orderItemDTO){
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        OrderItem orderItemToChange = orderItemRepository.findByProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
+        orderItemToChange.setQuantity(orderItemDTO.getQuantity());
+        orderItemRepository.save(orderItemToChange);
+        orderItems.get(orderItems.indexOf(orderItemToChange)).setQuantity(orderItemDTO.getQuantity());
+        shoppingCart.setOrderItems(orderItems);
+        shoppingCartRepository.save(shoppingCart);
     }
 }
