@@ -11,7 +11,6 @@ import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,11 +89,15 @@ public class SaleService {
                 productDTO.setImagePath(product.getImagePath());
                 productDTOS.add(productDTO);
             }
+            categoryDTO.setProductDTOS(productDTOS);
             categoryDTOS.add(categoryDTO);
         }
         saleDto.setCategoryDTOS(categoryDTOS);
         return saleDto;
     }
+
+    // TODO: Add search by start date and end date
+    // TODO: Add checks and exceptions
 
     @Transactional
     public void deleteSale(String saleName){

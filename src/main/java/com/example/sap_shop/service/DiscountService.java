@@ -48,7 +48,7 @@ public class DiscountService {
     }
 
     @Transactional
-    public void updateDiscount(DiscountDTO discountDTO){
+    public void updateDiscount(DiscountDTO discountDTO){ // TODO: Fix update to not update everything
         Discount discount = discountRepository.findByName(discountDTO.getName());
         setDiscountFromDiscountDto(discount, discountDTO);
         discountRepository.save(discount);
@@ -58,6 +58,9 @@ public class DiscountService {
     public void deleteDiscount(String discountName){
         discountRepository.delete(discountRepository.findByName(discountName));
     }
+
+    // TODO: Add all searches
+    // TODO: Add checks and exceptions
 
     @Transactional
     @Scheduled(cron = "23 59 50 * * *")
