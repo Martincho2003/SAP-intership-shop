@@ -3,6 +3,7 @@ package com.example.sap_shop.service;
 import com.example.sap_shop.dto.*;
 import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
+import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.error.UserAlreadyExistException;
 import com.example.sap_shop.model.*;
 import com.example.sap_shop.repository.ShoppingCartRepository;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -72,6 +74,12 @@ public class UserService {
         return !userDto.getUsername().isEmpty() && !userDto.getPassword().isEmpty() && !userDto.getEmail().isEmpty();
     }
 
+    public void checkTokenDate(String token) throws TokenExpiredException {
+        if(jwtUtil.extractExpiration(token.substring(7)).before(new Date())){
+            throw new TokenExpiredException("Your session had ended, please login again");
+        }
+    }
+
     public String loginUser(UserDto userDto) throws InvalidLoginCredentialException {
         User user;
         if ((user = userRepository.findByUsername(userDto.getUsername())) == null) {
@@ -91,7 +99,8 @@ public class UserService {
         return user.getRoles().stream().map(Role::getRole).toList();
     }
 
-    public UserDto getProfileInfo(String token){
+    public UserDto getProfileInfo(String token) throws TokenExpiredException {
+        checkTokenDate(token);
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
         shoppingCartDTO.setOrderItemDTOS(OrderItemListToOrderItemDtoList(user.getShoppingCart().getOrderItems()));
@@ -127,10 +136,10 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(String token, UserDto userDto){
+    public void updateUser(String token, UserDto userDto) throws TokenExpiredException {
+        checkTokenDate(token);
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         user.setUsername(userDto.getUsername());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setEmail(userDto.getEmail());
         userRepository.save(user);
     }

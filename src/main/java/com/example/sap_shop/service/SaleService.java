@@ -23,13 +23,11 @@ import java.util.List;
 public class SaleService {
 
     private final SaleRepository saleRepository;
-    private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
 
     @Autowired
-    public SaleService(SaleRepository saleRepository, CategoryRepository categoryRepository, ProductRepository productRepository) {
+    public SaleService(SaleRepository saleRepository, ProductRepository productRepository) {
         this.saleRepository = saleRepository;
-        this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
     }
 
