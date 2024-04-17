@@ -6,7 +6,6 @@ import com.example.sap_shop.dto.SaleDto;
 import com.example.sap_shop.model.Category;
 import com.example.sap_shop.model.Product;
 import com.example.sap_shop.model.Sale;
-import com.example.sap_shop.repository.CategoryRepository;
 import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,36 +66,39 @@ public class SaleService {
         saleRepository.save(sale);
     }
 
-    public SaleDto getSaleByName(String saleName){
-        Sale sale = saleRepository.findByName(saleName);
-        SaleDto saleDto = new SaleDto();
-        saleDto.setName(sale.getName());
-        saleDto.setPercentage(sale.getPercentage());
-        saleDto.setStartDate(sale.getStartDate());
-        saleDto.setEndDate(sale.getEndDate());
-        List<CategoryDTO> categoryDTOS = new ArrayList<>();
-        for(Category category : sale.getCategories()){
-            CategoryDTO categoryDTO = new CategoryDTO();
-            List<ProductDTO> productDTOS = new ArrayList<>();
-            categoryDTO.setName(category.getName());
-            for(Product product : category.getProducts()){
-                ProductDTO productDTO = new ProductDTO();
-                productDTO.setName(product.getName());
-                productDTO.setDescription(product.getDescription());
-                productDTO.setPrice(product.getPrice());
-                productDTO.setMinPrice(product.getMinPrice());
-                productDTO.setQuantity(product.getQuantity());
-                productDTO.setImagePath(product.getImagePath());
-                productDTOS.add(productDTO);
+    public List<SaleDto> getSalesByName(String saleName){
+        List<Sale> sales = saleRepository.findByNameContainingIgnoreCase(saleName);
+        List<SaleDto> saleDtos = new ArrayList<>();
+        for(Sale sale : sales) {
+            SaleDto saleDto = new SaleDto();
+            saleDto.setName(sale.getName());
+            saleDto.setPercentage(sale.getPercentage());
+            saleDto.setStartDate(sale.getStartDate());
+            saleDto.setEndDate(sale.getEndDate());
+            List<CategoryDTO> categoryDTOS = new ArrayList<>();
+            for (Category category : sale.getCategories()) {
+                CategoryDTO categoryDTO = new CategoryDTO();
+                List<ProductDTO> productDTOS = new ArrayList<>();
+                categoryDTO.setName(category.getName());
+                for (Product product : category.getProducts()) {
+                    ProductDTO productDTO = new ProductDTO();
+                    productDTO.setName(product.getName());
+                    productDTO.setDescription(product.getDescription());
+                    productDTO.setPrice(product.getPrice());
+                    productDTO.setMinPrice(product.getMinPrice());
+                    productDTO.setQuantity(product.getQuantity());
+                    productDTO.setImagePath(product.getImagePath());
+                    productDTOS.add(productDTO);
+                }
+                categoryDTO.setProductDTOS(productDTOS);
+                categoryDTOS.add(categoryDTO);
             }
-            categoryDTO.setProductDTOS(productDTOS);
-            categoryDTOS.add(categoryDTO);
+            saleDto.setCategoryDTOS(categoryDTOS);
+            saleDtos.add(saleDto);
         }
-        saleDto.setCategoryDTOS(categoryDTOS);
-        return saleDto;
+        return saleDtos;
     }
 
-    // TODO: Add search by start date and end date
     // TODO: Add checks and exceptions
 
     @Transactional

@@ -31,7 +31,7 @@ public class SaleController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchSaleByName(@RequestParam String name){
-        return ResponseEntity.ok(saleService.getSaleByName(name));
+        return ResponseEntity.ok(saleService.getSalesByName(name));
     }
 
     @DeleteMapping("/delete/{saleName}")
