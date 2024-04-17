@@ -6,4 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface OrderItemRepository extends CrudRepository<OrderItem, Long> {
     OrderItem findByProduct(Product product);
+  
+    OrderItem findByProductName(String name);
+
 }

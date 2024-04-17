@@ -25,7 +25,7 @@ public class Sale {
 
     private Integer percentage;
 
-    @OneToMany()
+    @OneToMany
     private List<Category> categories;
 
     public Long getId() {
