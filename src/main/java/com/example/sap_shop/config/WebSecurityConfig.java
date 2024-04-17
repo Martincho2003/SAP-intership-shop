@@ -34,10 +34,16 @@ public class WebSecurityConfig{
         http
                 .authorizeHttpRequests((requests) -> {
                     requests.requestMatchers("/home", "/signup", "/login").permitAll();
-                    requests.requestMatchers("/products/search", "/search/{categoryName}").permitAll();
+                    requests.requestMatchers("/products/search", "/products", "/categories/search/{categoryName}",
+                            "/categories", "/categories/search").permitAll();
+
                     requests.requestMatchers("/admin/**").hasRole("ADMIN");
-                    requests.requestMatchers("/products", "/products/{name}", "/categories", "/categories/{name}", "/products/{productName}/assignCategory").hasAnyRole("ADMIN", "WORKER");
+
+                    requests.requestMatchers("/products/create", "/products/{name}", "/categories/{name}",
+                            "/products/{productName}/assignCategory", "/categories/create").hasAnyRole("ADMIN", "WORKER");
+
                     requests.requestMatchers("/user").hasAnyRole("ADMIN", "WORKER", "USER");
+
                     requests.requestMatchers("/user/**").hasRole("USER");
                     requests.anyRequest().authenticated();
 

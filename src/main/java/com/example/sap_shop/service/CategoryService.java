@@ -26,6 +26,7 @@ public class CategoryService{
         this.productService = productService;
     }
 
+
     @Transactional
     public void createCategory(CategoryDTO categoryDTO) throws CategoryAlreadyExistsError, FieldCannotBeEmptyException {
         if (categoryRepository.findByName(categoryDTO.getName()) != null) {
@@ -39,8 +40,8 @@ public class CategoryService{
         } else {
             throw new FieldCannotBeEmptyException("Field can not be empty!");
         }
-
     }
+
 
     @Transactional
     public void deleteCategory(String name) throws CategoryNotFoundException {
@@ -54,7 +55,7 @@ public class CategoryService{
 
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(productService::convertCategoryToDTO)
+                .map(productService::convertCategoryToDTO) // Use the simplified method
                 .collect(Collectors.toList());
     }
 
@@ -68,6 +69,4 @@ public class CategoryService{
     public List<ProductDTO> getAllProductsFromCategory(String category) {
         return productService.getAllProductsFromCategory(category);
     }
-
-
 }

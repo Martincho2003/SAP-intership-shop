@@ -41,7 +41,7 @@ public class ProductService {
 
         if (productDTO.getName() != null && productDTO.getDescription() != null && productDTO.getPrice() != null
                 && productDTO.getMinPrice() != null && productDTO.getQuantity() != null && productDTO.getQuantity() != null
-                && productDTO.getImagePath() != null && productDTO.getCategoryDTO() != null) {
+                && productDTO.getImagePath() != null && productDTO.getCategoryName() != null) {
 
             product.setName(productDTO.getName());
             product.setDescription(productDTO.getDescription());
@@ -50,7 +50,7 @@ public class ProductService {
             product.setMinPrice(productDTO.getMinPrice());
             product.setQuantity(productDTO.getQuantity());
             product.setImagePath(productDTO.getImagePath());
-            Category category = categoryRepository.findByName(productDTO.getCategoryDTO().getName());
+            Category category = categoryRepository.findByName(productDTO.getCategoryName());
             if (category == null) {
                 throw new CategoryNotFoundException("Category does not exist!");
             }
@@ -70,7 +70,6 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    //da go izpolzvam
     @Transactional
     public void updateCategory(String productName, String categoryName) throws ProductNotFoundException, CategoryNotFoundException {
         Product product = productRepository.findByName(productName);
@@ -111,18 +110,16 @@ public class ProductService {
 
     }
 
-    //Fix the recursion
-    private ProductDTO convertProductToDTO(Product product) {
-        if (product.getDiscountPrice() == product.getPrice()) {
+    public ProductDTO convertProductToDTO(Product product) {
+        if (product.getDiscountPrice().equals(product.getPrice())) {
             return new ProductDTO(product.getName(), product.getDescription(), product.getPrice(),
-                    product.getQuantity(), product.getImagePath(), product.getMinPrice(), convertCategoryToDTO(product.getCategory()) );
+                    product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName() );
         } else {
             return new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(),
-                    product.getQuantity(), product.getImagePath(), product.getMinPrice(), convertCategoryToDTO(product.getCategory()));
+                    product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName());
         }
     }
 
-    //Fix the recursion
     public CategoryDTO convertCategoryToDTO(Category category){
         CategoryDTO categoryDTO = new CategoryDTO();
         List<ProductDTO> productDTOS = new ArrayList<>();

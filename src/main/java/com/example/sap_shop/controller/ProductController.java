@@ -23,8 +23,8 @@ public class ProductController {
         this.productService = productService;
     }
 
-
-    @PostMapping
+    //works
+    @PostMapping("/create")
     public ResponseEntity<?> addNewProduct (@RequestBody ProductDTO productDTO) {
         try {
             productService.createProduct(productDTO);
@@ -34,7 +34,7 @@ public class ProductController {
         } catch (ProductAlreadyExistException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (CategoryNotFoundException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
 
@@ -50,12 +50,14 @@ public class ProductController {
         return ResponseEntity.ok().body("Product assigned properly.");
     }
 
+    //works
     @GetMapping
     public ResponseEntity<?> getAllProducts() {
             List<ProductDTO> products = productService.getAllProducts();
             return ResponseEntity.ok(products);
     }
 
+    //works
     @GetMapping("/search")
     public ResponseEntity<?> searchProduct(@RequestParam String name) {
 
@@ -64,6 +66,7 @@ public class ProductController {
 
     }
 
+    //works
     @DeleteMapping("/{name}")
     public ResponseEntity<?> deleteProduct(@PathVariable String name) {
         try {

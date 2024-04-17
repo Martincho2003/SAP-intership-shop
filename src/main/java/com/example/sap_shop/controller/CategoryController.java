@@ -24,6 +24,20 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    //works
+    @PostMapping("/create")
+    public ResponseEntity<?> addNewCategory (@RequestBody CategoryDTO categoryDTO) {
+        try {
+            categoryService.createCategory(categoryDTO);
+        } catch (FieldCannotBeEmptyException e) {
+            return ResponseEntity.status(409).body("Field can not be empty!");
+        } catch (CategoryAlreadyExistsError e) {
+            return ResponseEntity.status(409).body("Category already exists!");
+        }
+        return ResponseEntity.ok().body("Category created successfully.");
+    }
+
+    //works
     @GetMapping
     public ResponseEntity<?> getAllCategories() {
         List<CategoryDTO> categories = categoryService.getAllCategories();
@@ -36,23 +50,13 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+
     @GetMapping("/search/{categoryName}")
     public ResponseEntity<?> searchProductsByCategory(@PathVariable String categoryName) {
         List<ProductDTO> products = categoryService.getAllProductsFromCategory(categoryName);
         return ResponseEntity.ok(products);
     }
 
-    @PostMapping
-    public ResponseEntity<?> addNewCategory (@RequestBody CategoryDTO categoryDTO) {
-        try {
-            categoryService.createCategory(categoryDTO);
-        } catch (FieldCannotBeEmptyException e) {
-            return ResponseEntity.status(409).body("Field can not be empty!");
-        } catch (CategoryAlreadyExistsError e) {
-            return ResponseEntity.status(409).body("Category already exists!");
-        }
-        return ResponseEntity.ok().body("Category created successfully.");
-    }
 
     @DeleteMapping("/{name}")
     public ResponseEntity<?> deleteCategory(@PathVariable String name){

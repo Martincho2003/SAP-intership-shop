@@ -10,19 +10,19 @@ public class ProductDTO {
     private Integer quantity;
     private String imagePath;
     private Float minPrice;
-    private CategoryDTO categoryDTO;
+    private String categoryName;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath, Float minPrice, CategoryDTO categoryDTO) {
+    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath, Float minPrice, String categoryName) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.quantity = quantity;
         this.imagePath = imagePath;
         this.minPrice = minPrice;
-        this.categoryDTO = categoryDTO;
+        this.categoryName = categoryName;
     }
 
     public String getName() {
@@ -73,11 +73,11 @@ public class ProductDTO {
         this.minPrice = minPrice;
     }
 
-    public CategoryDTO getCategoryDTO() {
-        return categoryDTO;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategoryDTO(CategoryDTO categoryDTO) {
-        this.categoryDTO = categoryDTO;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
