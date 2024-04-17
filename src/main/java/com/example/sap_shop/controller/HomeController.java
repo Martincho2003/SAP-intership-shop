@@ -1,5 +1,8 @@
 package com.example.sap_shop.controller;
 
+import com.example.sap_shop.service.CategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,11 +15,16 @@ import java.util.Map;
 @RequestMapping("/home")
 public class HomeController {
 
+    private final CategoryService categoryService;
+
+    @Autowired
+    public HomeController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
+
     @GetMapping
-    public @ResponseBody Map<String, String > getHomePageInfo(){
-        HashMap<String, String> map = new HashMap<>();
-        map.put("name", "meso");
-        return map;
+    public ResponseEntity<?> getHomePageInfo(){
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
 }

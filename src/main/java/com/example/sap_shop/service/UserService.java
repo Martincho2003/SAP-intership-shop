@@ -32,6 +32,7 @@ public class UserService {
         this.jwtUtil = jwtUtil;
     }
 
+    @Transactional
     public void registerNewUser(UserDto userDto) throws UserAlreadyExistException, EmptyCredentialException {
         if(!checkEmptyFields(userDto)){
             throw new EmptyCredentialException();
@@ -82,6 +83,14 @@ public class UserService {
         return jwtUtil.generateToken(userDto.getUsername());
     }
 
+    public List<String> getUserRoles(UserDto userDto) throws InvalidLoginCredentialException {
+        User user;
+        if ((user = userRepository.findByUsername(userDto.getUsername())) == null) {
+            throw new InvalidLoginCredentialException("User with this username is not found");
+        }
+        return user.getRoles().stream().map(Role::getRole).toList();
+    }
+
     public UserDto getProfileInfo(String token){
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
@@ -117,6 +126,16 @@ public class UserService {
         return orderItemDTOS;
     }
 
+    @Transactional
+    public void updateUser(String token, UserDto userDto){
+        User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
+        user.setUsername(userDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setEmail(userDto.getEmail());
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void updateUserRole(String username, List<String> roles){
         User user = userRepository.findByUsername(username);
         List<Role> rolesNew = new ArrayList<>();

@@ -10,9 +10,10 @@ import com.example.sap_shop.repository.OrderItemRepository;
 import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.ShoppingCartRepository;
 import com.example.sap_shop.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,3 +91,4 @@ public class ShoppingCartService {
         shoppingCartRepository.save(shoppingCart);
     }
 }
+

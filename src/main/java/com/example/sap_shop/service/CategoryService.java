@@ -68,5 +68,6 @@ public class CategoryService{
 
     public List<ProductDTO> getAllProductsFromCategory(String category) {
         return productService.getAllProductsFromCategory(category);
+
     }
 }

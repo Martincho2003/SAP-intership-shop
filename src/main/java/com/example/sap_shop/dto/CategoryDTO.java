@@ -15,10 +15,6 @@ public class CategoryDTO {
         this.productDTOS = productDTOS;
     }
 
-    public CategoryDTO(String name) {
-
-    }
-
     public String getName() {
         return name;
     }

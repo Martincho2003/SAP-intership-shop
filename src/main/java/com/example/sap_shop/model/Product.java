@@ -24,6 +24,9 @@ public class Product {
     private Float price;
 
     @Column(nullable = false)
+    private Float discountPrice;
+
+    @Column(nullable = false)
     private Float minPrice;
 
     @Column(nullable = false)

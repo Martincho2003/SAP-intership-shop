@@ -4,6 +4,7 @@ import com.example.sap_shop.dto.UserDto;
 import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
 import com.example.sap_shop.error.UserAlreadyExistException;
+import com.example.sap_shop.service.ShoppingCartService;
 import com.example.sap_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +17,16 @@ import java.util.HashMap;
 public class UserController {
 
     private final UserService userService;
+    private final ShoppingCartService shoppingCartService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ShoppingCartService shoppingCartService) {
         this.userService = userService;
+        this.shoppingCartService = shoppingCartService;
     }
 
     @PostMapping(path="/signup")
-    public ResponseEntity addNewUser (@RequestBody UserDto userDto) {
+    public ResponseEntity<?> addNewUser (@RequestBody UserDto userDto) {
         HashMap<String, String> answer = new HashMap<>();
         try {
             userService.registerNewUser(userDto);
@@ -38,11 +41,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity loginPost(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> loginPost(@RequestBody UserDto userDto) {
         HashMap<String, String> answer = new HashMap<>();
         try {
             String token = userService.loginUser(userDto);
             answer.put("token", token);
+            for(String role : userService.getUserRoles(userDto)){
+                answer.put("role", role);
+            }
             return ResponseEntity.ok(answer);
         } catch (InvalidLoginCredentialException e) {
             answer.put("error", e.getMessage());
@@ -51,11 +57,13 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity getProfile(@RequestHeader("Authorization") String token){
-        HashMap<String, String> answer = new HashMap<>();
-
+    public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String token){
         UserDto userDto = userService.getProfileInfo(token);
-        answer.put("name", userDto.getUsername());
-        return ResponseEntity.ok(answer);
+        return ResponseEntity.ok(userDto);
+    }
+
+    @GetMapping("/shopping_cart")
+    public ResponseEntity<?> getUserShoppingCart(@RequestHeader("Authorization") String token){
+        return ResponseEntity.ok(shoppingCartService.getShoppingCart(token));
     }
 }

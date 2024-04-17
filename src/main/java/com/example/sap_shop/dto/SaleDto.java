@@ -14,12 +14,12 @@ public class SaleDto {
     public SaleDto() {
     }
 
-    public SaleDto(String name, Date startDate, Date endDate, Integer percentage) {
+    public SaleDto(String name, Date startDate, Date endDate, Integer percentage, List<CategoryDTO> categoryDTOS) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
         this.percentage = percentage;
-        this.categoryDTOS = new ArrayList<>();
+        this.categoryDTOS = categoryDTOS;
     }
 
     public String getName() {
