@@ -27,7 +27,9 @@ public class DiscountService {
         this.productRepository = productRepository;
     }
 
-    private void setDiscountFromDiscountDto(Discount discount, DiscountDTO discountDTO){
+    @Transactional
+    public void createDiscount(DiscountDTO discountDTO){
+        Discount discount = new Discount();
         List<Product> products = new ArrayList<>();
         for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
             Product product = productRepository.findByName(productDTO.getName());
@@ -38,19 +40,36 @@ public class DiscountService {
         discount.setEndDate(discountDTO.getEndDate());
         discount.setStartDate(discountDTO.getStartDate());
         discount.setPercentage(discountDTO.getPercentage());
-    }
-
-    @Transactional
-    public void createDiscount(DiscountDTO discountDTO){
-        Discount discount = new Discount();
-        setDiscountFromDiscountDto(discount, discountDTO);
         discountRepository.save(discount);
     }
 
     @Transactional
-    public void updateDiscount(DiscountDTO discountDTO){
+    public void updateDiscountSettings(DiscountDTO discountDTO){
         Discount discount = discountRepository.findByName(discountDTO.getName());
-        setDiscountFromDiscountDto(discount, discountDTO);
+        if (discountDTO.getName() != null && discountDTO.getName() != "") {
+            discount.setName(discountDTO.getName());
+        }
+        if(discountDTO.getEndDate() != null) {
+            discount.setEndDate(discountDTO.getEndDate());
+        }
+        if (discountDTO.getStartDate() != null) {
+            discount.setStartDate(discountDTO.getStartDate());
+        }
+        if (discountDTO.getPercentage() != null) {
+            discount.setPercentage(discountDTO.getPercentage());
+        }
+        discountRepository.save(discount);
+    }
+
+    @Transactional
+    public void updateDiscountProducts(DiscountDTO discountDTO){
+        Discount discount = discountRepository.findByName(discountDTO.getName());
+        List<Product> products = new ArrayList<>();
+        for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
+            Product product = productRepository.findByName(productDTO.getName());
+            products.add(product);
+        }
+        discount.setProducts(products);
         discountRepository.save(discount);
     }
 
@@ -58,6 +77,27 @@ public class DiscountService {
     public void deleteDiscount(String discountName){
         discountRepository.delete(discountRepository.findByName(discountName));
     }
+
+    public List<DiscountDTO> getDiscountsByName(String discountName){
+        List<Discount> discounts = discountRepository.findByNameContainingIgnoreCase(discountName);
+        List<DiscountDTO> discountDTOS = new ArrayList<>();
+        for (Discount discount : discounts){
+            DiscountDTO discountDTO = new DiscountDTO();
+            discountDTO.setName(discount.getName());
+            discountDTO.setEndDate(discount.getEndDate());
+            discountDTO.setPercentage(discount.getPercentage());
+            discountDTO.setStartDate(discount.getStartDate());
+            List<ProductDTO> productDTOS = new ArrayList<>();
+            for (Product product : discount.getProducts()){
+                productDTOS.add(new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(), product.getQuantity(), product.getImagePath(), product.getMinPrice()));
+            }
+            discountDTO.setProductDTOS(productDTOS);
+            discountDTOS.add(discountDTO);
+        }
+        return discountDTOS;
+    }
+
+    // TODO: Add checks and exceptions
 
     @Transactional
     @Scheduled(cron = "23 59 50 * * *")

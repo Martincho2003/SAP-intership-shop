@@ -3,6 +3,7 @@ package com.example.sap_shop.controller;
 import com.example.sap_shop.dto.UserDto;
 import com.example.sap_shop.error.EmptyCredentialException;
 import com.example.sap_shop.error.InvalidLoginCredentialException;
+import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.error.UserAlreadyExistException;
 import com.example.sap_shop.service.ShoppingCartService;
 import com.example.sap_shop.service.UserService;
@@ -58,12 +59,21 @@ public class UserController {
 
     @GetMapping("/user")
     public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String token){
-        UserDto userDto = userService.getProfileInfo(token);
+        UserDto userDto = null;
+        try {
+            userDto = userService.getProfileInfo(token);
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
         return ResponseEntity.ok(userDto);
     }
 
     @GetMapping("/shopping_cart")
     public ResponseEntity<?> getUserShoppingCart(@RequestHeader("Authorization") String token){
-        return ResponseEntity.ok(shoppingCartService.getShoppingCart(token));
+        try {
+            return ResponseEntity.ok(shoppingCartService.getShoppingCart(token));
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        }
     }
 }
