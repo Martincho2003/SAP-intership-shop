@@ -33,6 +33,7 @@ public class ProductService {
             product.setName(productDTO.getName());
             product.setDescription(productDTO.getDescription());
             product.setPrice(productDTO.getPrice());
+            product.setDiscountPrice(productDTO.getPrice());
             product.setMinPrice(productDTO.getMinPrice());
             product.setQuantity(productDTO.getQuantity());
             product.setImagePath(productDTO.getImagePath());

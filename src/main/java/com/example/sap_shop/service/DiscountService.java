@@ -44,7 +44,7 @@ public class DiscountService {
     }
 
     @Transactional
-    public void updateDiscountSettings(DiscountDTO discountDTO){ // TODO: Fix update to not update everything
+    public void updateDiscountSettings(DiscountDTO discountDTO){
         Discount discount = discountRepository.findByName(discountDTO.getName());
         if (discountDTO.getName() != null && discountDTO.getName() != "") {
             discount.setName(discountDTO.getName());
@@ -62,7 +62,7 @@ public class DiscountService {
     }
 
     @Transactional
-    public void updateDiscountProducts(DiscountDTO discountDTO){ // TODO: Fix update to not update everything
+    public void updateDiscountProducts(DiscountDTO discountDTO){
         Discount discount = discountRepository.findByName(discountDTO.getName());
         List<Product> products = new ArrayList<>();
         for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
