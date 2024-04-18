@@ -1,7 +1,9 @@
 package com.example.sap_shop.controller;
 
+import com.example.sap_shop.error.UserNotFoundException;
 import com.example.sap_shop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,5 +28,15 @@ public class AdminController {
     public String updateUserRole(@PathVariable String username, @RequestParam List<String> roles){
         userService.updateUserRole(username, roles);
         return "success";
+    }
+
+    @DeleteMapping("/delete/{username}")
+    private ResponseEntity<?> deleteUser(@PathVariable String username){
+        try {
+            userService.deleteUser(username);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+        return ResponseEntity.ok("success");
     }
 }

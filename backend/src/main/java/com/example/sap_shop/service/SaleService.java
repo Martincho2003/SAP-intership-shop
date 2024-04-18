@@ -3,6 +3,9 @@ package com.example.sap_shop.service;
 import com.example.sap_shop.dto.CategoryDTO;
 import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.dto.SaleDto;
+import com.example.sap_shop.error.FieldCannotBeEmptyException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
+import com.example.sap_shop.error.SaleNotFoundException;
 import com.example.sap_shop.model.Category;
 import com.example.sap_shop.model.Product;
 import com.example.sap_shop.model.Sale;
@@ -57,12 +60,29 @@ public class SaleService {
     }
 
     @Transactional
-    public void updateSale(SaleDto saleDto){
+    public void updateSaleSettings(SaleDto saleDto) throws InvalidRequestBodyException, FieldCannotBeEmptyException {
         Sale sale = saleRepository.findByName(saleDto.getName());
-        sale.setPercentage(saleDto.getPercentage());
-        sale.setStartDate(saleDto.getStartDate());
-        sale.setEndDate(saleDto.getEndDate());
-        sale.setName(sale.getName());
+        if (saleDto.getPercentage() != null) {
+            if(saleDto.getPercentage() <= 0){
+                throw new InvalidRequestBodyException("Sale can't be under 0 percent.");
+            }
+            sale.setPercentage(saleDto.getPercentage());
+        }
+        if (saleDto.getStartDate() != null) {
+            if(new Date().after(saleDto.getStartDate())){
+                throw new InvalidRequestBodyException("The date is already gone,");
+            }
+            sale.setStartDate(saleDto.getStartDate());
+        }
+        if (saleDto.getEndDate() != null) {
+            sale.setEndDate(saleDto.getEndDate());
+        }
+        if(saleDto.getName() != null) {
+            if(saleDto.getName() == ""){
+                throw new FieldCannotBeEmptyException("You must have a name");
+            }
+            sale.setName(sale.getName());
+        }
         saleRepository.save(sale);
     }
 
@@ -102,8 +122,13 @@ public class SaleService {
     // TODO: Add checks and exceptions
 
     @Transactional
-    public void deleteSale(String saleName){
-        saleRepository.delete(saleRepository.findByName(saleName));
+    public void deleteSale(String saleName) throws SaleNotFoundException {
+        Sale sale;
+        if((sale = saleRepository.findByName(saleName)) != null) {
+            saleRepository.delete(sale);
+        } else {
+            throw new SaleNotFoundException("Sale for delete is not found.");
+        }
     }
 
     @Transactional

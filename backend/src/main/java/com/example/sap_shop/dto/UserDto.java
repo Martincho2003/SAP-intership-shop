@@ -21,6 +21,12 @@ public class UserDto {
         this.orderDTOS = orderDTOS;
     }
 
+    public UserDto(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
     public String getPassword() {
         return password;
     }

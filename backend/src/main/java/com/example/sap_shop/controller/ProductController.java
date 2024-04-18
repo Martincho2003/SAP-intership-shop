@@ -30,11 +30,11 @@ public class ProductController {
             productService.createProduct(productDTO);
             return ResponseEntity.ok().body("Product created successfully.");
         } catch (FieldCannotBeEmptyException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
+            return ResponseEntity.status(400).body(e.getMessage());
         } catch (ProductAlreadyExistException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (CategoryNotFoundException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
+            return ResponseEntity.status(404).body(e.getMessage());
         }
     }
 
@@ -42,10 +42,8 @@ public class ProductController {
     public ResponseEntity<?> assignProductToCategory(@PathVariable String productName, @RequestParam String categoryName) {
         try {
             productService.updateCategory(productName, categoryName);
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
-        } catch (CategoryNotFoundException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (ProductNotFoundException | CategoryNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.ok().body("Product assigned properly.");
     }

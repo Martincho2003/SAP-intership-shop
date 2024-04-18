@@ -35,13 +35,13 @@ public class DiscountController {
         return ResponseEntity.ok("Success");
     }
 
-    @DeleteMapping("/{discountName}")
+    @DeleteMapping("/delete/{discountName}")
     public ResponseEntity<?> deleteDiscount(@PathVariable String discountName){
         discountService.deleteDiscount(discountName);
         return ResponseEntity.ok("Success");
     }
 
-    @GetMapping("/{discountName}")
+    @GetMapping("/search/{discountName}")
     public ResponseEntity<?> searchDiscounts(@PathVariable String discountName){
         return ResponseEntity.ok(discountService.getDiscountsByName(discountName));
     }

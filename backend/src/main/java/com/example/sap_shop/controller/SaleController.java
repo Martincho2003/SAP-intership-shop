@@ -1,6 +1,9 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.dto.SaleDto;
+import com.example.sap_shop.error.FieldCannotBeEmptyException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
+import com.example.sap_shop.error.SaleNotFoundException;
 import com.example.sap_shop.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +20,7 @@ public class SaleController {
         this.saleService = saleService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> addSale(@RequestBody SaleDto saleDto){
         saleService.createSale(saleDto);
         return ResponseEntity.ok("Success");
@@ -25,7 +28,11 @@ public class SaleController {
 
     @PostMapping("/update")
     public ResponseEntity<?> updateSale(@RequestBody SaleDto saleDto){
-        saleService.updateSale(saleDto);
+        try {
+            saleService.updateSaleSettings(saleDto);
+        } catch (InvalidRequestBodyException | FieldCannotBeEmptyException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
         return ResponseEntity.ok("Success");
     }
 
@@ -36,7 +43,11 @@ public class SaleController {
 
     @DeleteMapping("/delete/{saleName}")
     public ResponseEntity<?> deleteSale(@PathVariable String saleName){
-        saleService.deleteSale(saleName);
+        try {
+            saleService.deleteSale(saleName);
+        } catch (SaleNotFoundException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
         return ResponseEntity.ok("Success");
     }
 }
