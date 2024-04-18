@@ -1,6 +1,7 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.error.ShoppingCartDoesNotExistError;
+import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,8 @@ public class OrderController {
             return ResponseEntity.ok(orderService.buy(token));
         } catch (ShoppingCartDoesNotExistError e) {
             return ResponseEntity.status(409).body(e.getMessage());
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
         }
     }
 }

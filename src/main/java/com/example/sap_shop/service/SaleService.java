@@ -107,7 +107,7 @@ public class SaleService {
     }
 
     @Transactional
-    @Scheduled(cron = "23 59 50 * * *")
+    @Scheduled(cron = "23 59 0 * * *")
     public void updatePriceOnExpiredSales(){
         List<Sale> sales = saleRepository.findByEndDate(new Date());
         for(Sale sale : sales) {
@@ -122,7 +122,7 @@ public class SaleService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 2 0 * * *")
     public void updatePriceOnActivatedSales(){
         List<Sale> sales = saleRepository.findByStartDate(new Date());
         for(Sale sale : sales){

@@ -37,8 +37,6 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    private Float discountPrice;
-
     public Long getId() {
         return id;
     }

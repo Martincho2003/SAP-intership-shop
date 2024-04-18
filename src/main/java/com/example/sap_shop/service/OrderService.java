@@ -5,6 +5,7 @@ import com.example.sap_shop.dto.OrderItemDTO;
 import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.dto.ShoppingCartDTO;
 import com.example.sap_shop.error.ShoppingCartDoesNotExistError;
+import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.model.*;
 import com.example.sap_shop.repository.*;
 import jakarta.transaction.Transactional;
@@ -37,7 +38,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO buy(String token) throws ShoppingCartDoesNotExistError {
+    public OrderDTO buy(String token) throws ShoppingCartDoesNotExistError, TokenExpiredException {
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         List<Order> orders = user.getOrders();
         OrderDTO orderDTO = new OrderDTO();

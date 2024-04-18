@@ -89,7 +89,7 @@ public class DiscountService {
             discountDTO.setStartDate(discount.getStartDate());
             List<ProductDTO> productDTOS = new ArrayList<>();
             for (Product product : discount.getProducts()){
-                productDTOS.add(new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(), product.getQuantity(), product.getImagePath(), product.getMinPrice()));
+                productDTOS.add(new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(), product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName()));
             }
             discountDTO.setProductDTOS(productDTOS);
             discountDTOS.add(discountDTO);
@@ -100,7 +100,7 @@ public class DiscountService {
     // TODO: Add checks and exceptions
 
     @Transactional
-    @Scheduled(cron = "23 59 50 * * *")
+    @Scheduled(cron = "23 59 0 * * *")
     public void updatePriceOnExpiredDiscounts(){
         List<Discount> discounts = discountRepository.findByEndDate(new Date());
         for(Discount discount : discounts){
@@ -113,7 +113,7 @@ public class DiscountService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 1 0 * * *")
     public void updatePriceOnActivatedDiscounts(){
         List<Discount> discounts = discountRepository.findByStartDate(new Date());
         for(Discount discount : discounts){
