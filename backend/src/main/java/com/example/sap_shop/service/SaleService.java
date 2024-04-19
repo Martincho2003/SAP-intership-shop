@@ -119,8 +119,6 @@ public class SaleService {
         return saleDtos;
     }
 
-    // TODO: Add checks and exceptions
-
     @Transactional
     public void deleteSale(String saleName) throws SaleNotFoundException {
         Sale sale;

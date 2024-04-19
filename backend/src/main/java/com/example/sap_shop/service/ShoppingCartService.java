@@ -86,12 +86,15 @@ public class ShoppingCartService {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
         Product product = productRepository.findByName(orderItemDTO.getProduct().getName());
-        if(product.getQuantity() < orderItemDTO.getQuantity()){
+        if(product.getQuantity() < 1){
             throw new NotEnoughQuantityException("Sorry, but for this moment we do not have this quantity of the product.");
+        }
+        if(orderItemDTO.getProduct().getName() == null || orderItemDTO.getProduct().getName().equals("")){
+            throw new InvalidRequestBodyException("There is not product name to add!");
         }
         OrderItem orderItem = new OrderItem();
         orderItem.setProduct(product);
-        orderItem.setQuantity(orderItemDTO.getQuantity());
+        orderItem.setQuantity(1);
         orderItemRepository.save(orderItem);
         orderItems.add(orderItem);
         shoppingCart.setOrderItems(orderItems);
@@ -108,7 +111,7 @@ public class ShoppingCartService {
             throw new InvalidRequestBodyException("There is not product name to add!");
         }
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
-        List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        List<OrderItem> orderItems = new ArrayList<>(shoppingCart.getOrderItems());
         OrderItem orderItemToDelete = orderItemRepository.findByProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
         orderItems.remove(orderItemToDelete);
         shoppingCart.setOrderItems(orderItems);

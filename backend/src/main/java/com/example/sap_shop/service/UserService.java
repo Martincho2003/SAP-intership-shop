@@ -63,10 +63,7 @@ public class UserService {
         userRepository.save(user);
 
         shoppingCart.setUser(user);
-        shoppingCart = shoppingCartRepository.save(shoppingCart);
-
-        System.out.println(user.getId());
-        System.out.println(shoppingCart.getUser().getId());
+        shoppingCartRepository.save(shoppingCart);
     }
 
     public boolean checkEmptyFields(UserDto userDto){

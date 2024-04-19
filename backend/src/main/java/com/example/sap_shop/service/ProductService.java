@@ -39,7 +39,7 @@ public class ProductService {
         Product product = new Product();
 
         if (productDTO.getName() != null && productDTO.getDescription() != null && productDTO.getPrice() != null
-                && productDTO.getMinPrice() != null && productDTO.getQuantity() != null && productDTO.getQuantity() != null
+                && productDTO.getMinPrice() != null && productDTO.getQuantity() != null
                 && productDTO.getImagePath() != null && productDTO.getCategoryName() != null) {
 
             product.setName(productDTO.getName());

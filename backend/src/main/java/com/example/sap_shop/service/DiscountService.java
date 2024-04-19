@@ -2,6 +2,9 @@ package com.example.sap_shop.service;
 
 import com.example.sap_shop.dto.DiscountDTO;
 import com.example.sap_shop.dto.ProductDTO;
+import com.example.sap_shop.error.DiscountNotFoundException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
+import com.example.sap_shop.error.ProductNotFoundException;
 import com.example.sap_shop.model.Discount;
 import com.example.sap_shop.model.Product;
 import com.example.sap_shop.repository.DiscountRepository;
@@ -28,11 +31,22 @@ public class DiscountService {
     }
 
     @Transactional
-    public void createDiscount(DiscountDTO discountDTO){
+    public void createDiscount(DiscountDTO discountDTO) throws InvalidRequestBodyException, ProductNotFoundException {
+        if(discountDTO.getProductDTOS() == null || discountDTO.getPercentage() == null || discountDTO.getName() == null
+                || discountDTO.getStartDate() == null || discountDTO.getEndDate() == null){
+            throw new InvalidRequestBodyException("Some of the settings are not set");
+        }
+        if(discountDTO.getPercentage() <= 0 || discountDTO.getName() == ""
+                || discountDTO.getStartDate().before(new Date()) || discountDTO.getEndDate().before(discountDTO.getStartDate())){
+            throw new InvalidRequestBodyException("Some of the settings are set wrong");
+        }
         Discount discount = new Discount();
         List<Product> products = new ArrayList<>();
         for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
-            Product product = productRepository.findByName(productDTO.getName());
+            Product product;
+            if((product = productRepository.findByName(productDTO.getName())) == null){
+                throw new ProductNotFoundException("Product with name " + productDTO.getName() + " not found!");
+            }
             products.add(product);
         }
         discount.setProducts(products);
@@ -43,12 +57,21 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
-    @Transactional
-    public void updateDiscountSettings(DiscountDTO discountDTO){
-        Discount discount = discountRepository.findByName(discountDTO.getName());
-        if (discountDTO.getName() != null && discountDTO.getName() != "") {
-            discount.setName(discountDTO.getName());
+    private Discount checkDiscountNameAndIfExist(String discountName) throws DiscountNotFoundException, InvalidRequestBodyException {
+        if (discountName == null || discountName == "") {
+            throw new InvalidRequestBodyException("There is no discount name");
         }
+        Discount discount;
+        if((discount = discountRepository.findByName(discountName)) == null){
+            throw new DiscountNotFoundException("Discount with name: "+ discountName + " is not found.");
+        }
+        return discount;
+    }
+
+    @Transactional
+    public void updateDiscountSettings(DiscountDTO discountDTO) throws InvalidRequestBodyException, DiscountNotFoundException {
+        Discount discount = checkDiscountNameAndIfExist(discountDTO.getName());
+        discount.setName(discountDTO.getName());
         if(discountDTO.getEndDate() != null) {
             discount.setEndDate(discountDTO.getEndDate());
         }
@@ -56,14 +79,20 @@ public class DiscountService {
             discount.setStartDate(discountDTO.getStartDate());
         }
         if (discountDTO.getPercentage() != null) {
+            if(discountDTO.getPercentage() <= 0){
+                throw new InvalidRequestBodyException("Percentage can't be under 0.");
+            }
             discount.setPercentage(discountDTO.getPercentage());
         }
         discountRepository.save(discount);
     }
 
     @Transactional
-    public void updateDiscountProducts(DiscountDTO discountDTO){
-        Discount discount = discountRepository.findByName(discountDTO.getName());
+    public void updateDiscountProducts(DiscountDTO discountDTO) throws InvalidRequestBodyException, DiscountNotFoundException {
+        Discount discount = checkDiscountNameAndIfExist(discountDTO.getName());
+        if(discountDTO.getProductDTOS() == null){
+            throw new InvalidRequestBodyException("There is no products");
+        }
         List<Product> products = new ArrayList<>();
         for(ProductDTO productDTO : discountDTO.getProductDTOS()) {
             Product product = productRepository.findByName(productDTO.getName());
@@ -74,8 +103,9 @@ public class DiscountService {
     }
 
     @Transactional
-    public void deleteDiscount(String discountName){
-        discountRepository.delete(discountRepository.findByName(discountName));
+    public void deleteDiscount(String discountName) throws DiscountNotFoundException, InvalidRequestBodyException {
+        Discount discount = checkDiscountNameAndIfExist(discountName);
+        discountRepository.delete(discount);
     }
 
     public List<DiscountDTO> getDiscountsByName(String discountName){
@@ -96,8 +126,6 @@ public class DiscountService {
         }
         return discountDTOS;
     }
-
-    // TODO: Add checks and exceptions
 
     @Transactional
     @Scheduled(cron = "23 59 0 * * *")

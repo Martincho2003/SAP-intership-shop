@@ -23,6 +23,13 @@ public class ProductDTO {
         this.categoryName = categoryName;
     }
 
+    public ProductDTO(String name, Integer quantity, Float price, String description) {
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.quantity = quantity;
+    }
+
     public String getName() {
         return name;
     }
