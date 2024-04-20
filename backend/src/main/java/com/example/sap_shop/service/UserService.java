@@ -1,14 +1,12 @@
 package com.example.sap_shop.service;
 
 import com.example.sap_shop.dto.*;
-import com.example.sap_shop.error.EmptyCredentialException;
-import com.example.sap_shop.error.InvalidLoginCredentialException;
-import com.example.sap_shop.error.TokenExpiredException;
-import com.example.sap_shop.error.UserAlreadyExistException;
+import com.example.sap_shop.error.*;
 import com.example.sap_shop.model.*;
 import com.example.sap_shop.repository.ShoppingCartRepository;
 import com.example.sap_shop.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,10 +43,10 @@ public class UserService {
         if(userRepository.findByUsername(userDto.getUsername()) != null){
             throw new UserAlreadyExistException("User with that username already exists");
         }
-        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        //userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         User user = new User();
         user.setUsername(userDto.getUsername());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setEmail(userDto.getEmail());
         List<Role> roles = new ArrayList<>();
         Role role = new Role();
@@ -56,18 +54,16 @@ public class UserService {
         roles.add(role);
         user.setRoles(roles);
         user.setOrders(new ArrayList<>());
-        userRepository.save(user);
-
-        user = userRepository.findByUsername(userDto.getUsername());
+        user = userRepository.save(user);
 
         ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(user);
-        shoppingCartRepository.save(shoppingCart);
+        shoppingCart = shoppingCartRepository.save(shoppingCart);
 
-
-        user.setShoppingCart(shoppingCartRepository.findByUser(user));
+        user.setShoppingCart(shoppingCart);
         userRepository.save(user);
 
+        shoppingCart.setUser(user);
+        shoppingCartRepository.save(shoppingCart);
     }
 
     public boolean checkEmptyFields(UserDto userDto){
@@ -123,6 +119,7 @@ public class UserService {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setDescription(orderItem.getProduct().getDescription());
             productDTO.setPrice(orderItem.getProduct().getPrice());
+            productDTO.setDiscountPrice(orderItem.getProduct().getDiscountPrice());
             productDTO.setQuantity(orderItem.getProduct().getQuantity());
             productDTO.setName(orderItem.getProduct().getName());
 
@@ -165,5 +162,14 @@ public class UserService {
         }
         user.setRoles(rolesNew);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(String username) throws UserNotFoundException {
+        User user = userRepository.findByUsername(username);
+        if(user == null){
+            throw new UserNotFoundException("User is not found");
+        }
+        userRepository.delete(user);
     }
 }

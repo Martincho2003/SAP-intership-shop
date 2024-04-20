@@ -1,6 +1,7 @@
 package com.example.sap_shop.controller;
 
 import com.example.sap_shop.dto.SaleDto;
+import com.example.sap_shop.error.*;
 import com.example.sap_shop.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +18,37 @@ public class SaleController {
         this.saleService = saleService;
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> addSale(@RequestBody SaleDto saleDto){
-        saleService.createSale(saleDto);
+        try {
+            saleService.createSale(saleDto);
+        } catch (InvalidRequestBodyException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
         return ResponseEntity.ok("Success");
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<?> updateSale(@RequestBody SaleDto saleDto){
-        saleService.updateSale(saleDto);
+    @PostMapping("/update-settings")
+    public ResponseEntity<?> updateSaleSettings(@RequestBody SaleDto saleDto){
+        try {
+            saleService.updateSaleSettings(saleDto);
+        } catch (InvalidRequestBodyException | FieldCannotBeEmptyException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+        return ResponseEntity.ok("Success");
+    }
+
+    @PostMapping("/update-categories")
+    public ResponseEntity<?> updateSaleCategories(@RequestBody SaleDto saleDto){
+        try {
+            saleService.updateSaleCategories(saleDto);
+        } catch (InvalidRequestBodyException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (CategoryNotFoundException | SaleNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
         return ResponseEntity.ok("Success");
     }
 
@@ -36,7 +59,11 @@ public class SaleController {
 
     @DeleteMapping("/delete/{saleName}")
     public ResponseEntity<?> deleteSale(@PathVariable String saleName){
-        saleService.deleteSale(saleName);
+        try {
+            saleService.deleteSale(saleName);
+        } catch (SaleNotFoundException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
         return ResponseEntity.ok("Success");
     }
 }

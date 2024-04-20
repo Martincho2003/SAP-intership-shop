@@ -3,9 +3,11 @@ package com.example.sap_shop.service;
 import com.example.sap_shop.dto.CategoryDTO;
 import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.dto.SaleDto;
+import com.example.sap_shop.error.*;
 import com.example.sap_shop.model.Category;
 import com.example.sap_shop.model.Product;
 import com.example.sap_shop.model.Sale;
+import com.example.sap_shop.repository.CategoryRepository;
 import com.example.sap_shop.repository.ProductRepository;
 import com.example.sap_shop.repository.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,20 +24,25 @@ public class SaleService {
 
     private final SaleRepository saleRepository;
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public SaleService(SaleRepository saleRepository, ProductRepository productRepository) {
+    public SaleService(SaleRepository saleRepository, ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.saleRepository = saleRepository;
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
-    private void setSaleFromSaleDto(Sale sale, SaleDto saleDto){
+    private void setSaleFromSaleDto(Sale sale, SaleDto saleDto) throws ProductNotFoundException {
         List<Category> categoryList = new ArrayList<>();
         for(CategoryDTO categoryDTO : saleDto.getCategoryDTOS()){
             Category category = new Category();
             List<Product> products = new ArrayList<>();
             for(ProductDTO productDTO : categoryDTO.getProductDTOS()){
                 Product product = productRepository.findByName(productDTO.getName());
+                if(product == null){
+                    throw new ProductNotFoundException("Product with name " + productDTO.getName() + " not found!");
+                }
                 products.add(product);
             }
             category.setProducts(products);
@@ -46,23 +53,82 @@ public class SaleService {
         sale.setPercentage(saleDto.getPercentage());
         sale.setStartDate(saleDto.getStartDate());
         sale.setEndDate(saleDto.getEndDate());
-        sale.setName(sale.getName());
+        sale.setName(saleDto.getName());
     }
 
     @Transactional
-    public void createSale(SaleDto saleDto){
+    public void createSale(SaleDto saleDto) throws InvalidRequestBodyException, ProductNotFoundException {
         Sale sale = new Sale();
+        if(saleDto.getCategoryDTOS() == null || saleDto.getCategoryDTOS().isEmpty()){
+            throw new InvalidRequestBodyException("Categories for sale are not set.");
+        }
+        if(saleDto.getPercentage() == null || saleDto.getPercentage() <= 0){
+            throw new InvalidRequestBodyException("Percentage for sale are not set.");
+        }
+        if(saleDto.getName() == null || saleDto.getName().isEmpty()){
+            throw new InvalidRequestBodyException("Name for sale are not set.");
+        }
+        if(saleDto.getStartDate() == null || saleDto.getEndDate() == null){
+            throw new InvalidRequestBodyException("Dates for sale are not set.");
+        }
+        if(saleDto.getStartDate().before(new Date()) || saleDto.getEndDate().before(saleDto.getStartDate())){
+            throw new InvalidRequestBodyException("Dates for sale are not set correctly.");
+        }
         setSaleFromSaleDto(sale, saleDto);
         saleRepository.save(sale);
     }
 
     @Transactional
-    public void updateSale(SaleDto saleDto){
+    public void updateSaleSettings(SaleDto saleDto) throws InvalidRequestBodyException, FieldCannotBeEmptyException {
         Sale sale = saleRepository.findByName(saleDto.getName());
-        sale.setPercentage(saleDto.getPercentage());
-        sale.setStartDate(saleDto.getStartDate());
-        sale.setEndDate(saleDto.getEndDate());
-        sale.setName(sale.getName());
+        if (saleDto.getPercentage() != null) {
+            if(saleDto.getPercentage() <= 0){
+                throw new InvalidRequestBodyException("Sale can't be under 0 percent.");
+            }
+            sale.setPercentage(saleDto.getPercentage());
+        }
+        if (saleDto.getStartDate() != null) {
+            if(new Date().after(saleDto.getStartDate())){
+                throw new InvalidRequestBodyException("The date is already gone,");
+            }
+            sale.setStartDate(saleDto.getStartDate());
+        }
+        if (saleDto.getEndDate() != null) {
+            sale.setEndDate(saleDto.getEndDate());
+        }
+        if(saleDto.getName() != null) {
+            if(saleDto.getName() == ""){
+                throw new FieldCannotBeEmptyException("You must have a name");
+            }
+            sale.setName(sale.getName());
+        }
+        saleRepository.save(sale);
+    }
+
+    @Transactional
+    public void updateSaleCategories(SaleDto saleDto) throws InvalidRequestBodyException, SaleNotFoundException, CategoryNotFoundException {
+        if(saleDto.getName() == null){
+            throw new InvalidRequestBodyException("There is no sale set!");
+        }
+        if(saleDto.getCategoryDTOS() == null){
+            throw new CategoryNotFoundException("Categories not set");
+        }
+        Sale sale = saleRepository.findByName(saleDto.getName());
+        if(sale == null){
+            throw new SaleNotFoundException("Sale with name " + saleDto.getName() + " is not found!");
+        }
+        List<Category> categoryList = new ArrayList<>();
+        for(CategoryDTO categoryDTO : saleDto.getCategoryDTOS()){
+            if(categoryDTO.getName() == null){
+                throw new InvalidRequestBodyException("There is no category name!");
+            }
+            Category category = categoryRepository.findByName(categoryDTO.getName());
+            if(category == null){
+                throw new CategoryNotFoundException("Category with name" + categoryDTO.getName() + " is not found");
+            }
+            categoryList.add(category);
+        }
+        sale.setCategories(categoryList);
         saleRepository.save(sale);
     }
 
@@ -85,6 +151,7 @@ public class SaleService {
                     productDTO.setName(product.getName());
                     productDTO.setDescription(product.getDescription());
                     productDTO.setPrice(product.getPrice());
+                    productDTO.setDiscountPrice(product.getDiscountPrice());
                     productDTO.setMinPrice(product.getMinPrice());
                     productDTO.setQuantity(product.getQuantity());
                     productDTO.setImagePath(product.getImagePath());
@@ -99,11 +166,14 @@ public class SaleService {
         return saleDtos;
     }
 
-    // TODO: Add checks and exceptions
-
     @Transactional
-    public void deleteSale(String saleName){
-        saleRepository.delete(saleRepository.findByName(saleName));
+    public void deleteSale(String saleName) throws SaleNotFoundException {
+        Sale sale;
+        if((sale = saleRepository.findByName(saleName)) != null) {
+            saleRepository.delete(sale);
+        } else {
+            throw new SaleNotFoundException("Sale for delete is not found.");
+        }
     }
 
     @Transactional

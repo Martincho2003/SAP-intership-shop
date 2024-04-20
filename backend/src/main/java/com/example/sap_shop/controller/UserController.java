@@ -57,6 +57,16 @@ public class UserController {
         }
     }
 
+    @PostMapping("/user/update")
+    public ResponseEntity<?> updateUser(@RequestHeader("Authorization") String token, @RequestBody UserDto userDto){
+        try {
+            userService.updateUser(token, userDto);
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+        return ResponseEntity.ok("Success");
+    }
+
     @GetMapping("/user")
     public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String token){
         UserDto userDto = null;
@@ -66,14 +76,5 @@ public class UserController {
             return ResponseEntity.status(401).body(e.getMessage());
         }
         return ResponseEntity.ok(userDto);
-    }
-
-    @GetMapping("/shopping_cart")
-    public ResponseEntity<?> getUserShoppingCart(@RequestHeader("Authorization") String token){
-        try {
-            return ResponseEntity.ok(shoppingCartService.getShoppingCart(token));
-        } catch (TokenExpiredException e) {
-            return ResponseEntity.status(401).body(e.getMessage());
-        }
     }
 }

@@ -34,16 +34,19 @@ public class WebSecurityConfig{
                 .authorizeHttpRequests((requests) -> {
                     requests.requestMatchers("/home", "/signup", "/login").permitAll();
                     requests.requestMatchers("/products/search", "/products", "/categories/search/{categoryName}",
-                            "/categories", "/categories/search").permitAll();
+                            "/categories", "/categories/search", "/sale/search", "/discount/search/**").permitAll();
 
                     requests.requestMatchers("/admin/**").hasRole("ADMIN");
 
                     requests.requestMatchers("/products/create", "/products/{name}", "/categories/{name}",
-                            "/products/{productName}/assignCategory", "/categories/create").hasAnyRole("ADMIN", "WORKER");
+                            "/products/{productName}/assignCategory", "/categories/create",
+                            "/sale/create", "/sale/update-settings", "/sale/update-categories", "/sale/delete/{saleName}",
+                            "/discount", "/discount/update-settings", "/discount/update-products",
+                            "/discount/delete/**").hasAnyRole("ADMIN", "WORKER");
 
                     requests.requestMatchers("/user").hasAnyRole("ADMIN", "WORKER", "USER");
 
-                    requests.requestMatchers("/user/**").hasRole("USER");
+                    requests.requestMatchers("/user/**", "/shopping-cart", "/shopping-cart/update").hasRole("USER");
                     requests.anyRequest().authenticated();
 
                 })

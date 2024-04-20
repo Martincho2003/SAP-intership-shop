@@ -61,7 +61,7 @@ public class ShoppingCartService {
 
     public ShoppingCartDTO getShoppingCart(String token) throws TokenExpiredException {
         checkTokenDate(token);
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
         List<OrderItemDTO> orderItemDTOS = new ArrayList<>();
         for(OrderItem orderItem : shoppingCart.getOrderItems()){
@@ -70,6 +70,7 @@ public class ShoppingCartService {
             productDTO.setName(orderItem.getProduct().getName());
             productDTO.setQuantity(orderItem.getProduct().getQuantity());
             productDTO.setPrice(orderItem.getProduct().getPrice());
+            productDTO.setDiscountPrice(orderItem.getProduct().getDiscountPrice());
             productDTO.setDescription(orderItem.getProduct().getDescription());
             orderItemDTO.setQuantity(orderItem.getQuantity());
             orderItemDTO.setProduct(productDTO);
@@ -82,16 +83,24 @@ public class ShoppingCartService {
     @Transactional
     public void addProductToShoppingCart(String token, OrderItemDTO orderItemDTO) throws TokenExpiredException, NotEnoughQuantityException, InvalidRequestBodyException {
         checkTokenDate(token);
-        checkOrderItemNotNullNotEmpty(orderItemDTO);
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        if(orderItemDTO.getProduct() == null){
+            throw new InvalidRequestBodyException("You don't have product to add!");
+        }
+        if(orderItemDTO.getProduct().getName() == null || orderItemDTO.getProduct().getName().equals("")){
+            throw new InvalidRequestBodyException("There is not product name to add!");
+        }
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
         Product product = productRepository.findByName(orderItemDTO.getProduct().getName());
-        if(product.getQuantity() < orderItemDTO.getQuantity()){
+        if(product.getQuantity() < 1){
             throw new NotEnoughQuantityException("Sorry, but for this moment we do not have this quantity of the product.");
+        }
+        if(orderItemDTO.getProduct().getName() == null || orderItemDTO.getProduct().getName().equals("")){
+            throw new InvalidRequestBodyException("There is not product name to add!");
         }
         OrderItem orderItem = new OrderItem();
         orderItem.setProduct(product);
-        orderItem.setQuantity(orderItemDTO.getQuantity());
+        orderItem.setQuantity(1);
         orderItemRepository.save(orderItem);
         orderItems.add(orderItem);
         shoppingCart.setOrderItems(orderItems);
@@ -107,8 +116,8 @@ public class ShoppingCartService {
         if(orderItemDTO.getProduct().getName() == null || orderItemDTO.getProduct().getName().equals("")){
             throw new InvalidRequestBodyException("There is not product name to add!");
         }
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
-        List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
+        List<OrderItem> orderItems = new ArrayList<>(shoppingCart.getOrderItems());
         OrderItem orderItemToDelete = orderItemRepository.findByProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
         orderItems.remove(orderItemToDelete);
         shoppingCart.setOrderItems(orderItems);
@@ -120,7 +129,7 @@ public class ShoppingCartService {
     public void changeProductQuantityToShoppingCart(String token, OrderItemDTO orderItemDTO) throws TokenExpiredException, NotEnoughQuantityException, InvalidRequestBodyException {
         checkTokenDate(token);
         checkOrderItemNotNullNotEmpty(orderItemDTO);
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token)));
+        ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
         Product product = productRepository.findByName(orderItemDTO.getProduct().getName());
         if (product.getQuantity() < orderItemDTO.getQuantity()){
