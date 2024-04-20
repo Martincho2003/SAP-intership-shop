@@ -40,7 +40,7 @@ public class WebSecurityConfig{
 
                     requests.requestMatchers("/products/create", "/products/{name}", "/categories/{name}",
                             "/products/{productName}/assignCategory", "/categories/create",
-                            "/sale/create", "/sale/update", "/sale/delete/{saleName}",
+                            "/sale/create", "/sale/update-settings", "/sale/update-categories", "/sale/delete/{saleName}",
                             "/discount", "/discount/update-settings", "/discount/update-products",
                             "/discount/delete/**").hasAnyRole("ADMIN", "WORKER");
 

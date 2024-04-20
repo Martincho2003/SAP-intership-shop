@@ -119,7 +119,7 @@ public class DiscountService {
             discountDTO.setStartDate(discount.getStartDate());
             List<ProductDTO> productDTOS = new ArrayList<>();
             for (Product product : discount.getProducts()){
-                productDTOS.add(new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(), product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName()));
+                productDTOS.add(new ProductDTO(product.getName(), product.getDescription(), product.getPrice(), product.getDiscountPrice(), product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName()));
             }
             discountDTO.setProductDTOS(productDTOS);
             discountDTOS.add(discountDTO);

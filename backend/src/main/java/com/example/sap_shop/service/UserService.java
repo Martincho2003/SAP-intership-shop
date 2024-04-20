@@ -119,6 +119,7 @@ public class UserService {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setDescription(orderItem.getProduct().getDescription());
             productDTO.setPrice(orderItem.getProduct().getPrice());
+            productDTO.setDiscountPrice(orderItem.getProduct().getDiscountPrice());
             productDTO.setQuantity(orderItem.getProduct().getQuantity());
             productDTO.setName(orderItem.getProduct().getName());
 

@@ -5,6 +5,7 @@ public class ProductDTO {
     private String name;
     private String description;
     private Float price;
+    private Float discountPrice;
     private Integer quantity;
     private String imagePath;
     private Float minPrice;
@@ -13,10 +14,11 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(String name, String description, Float price, Integer quantity, String imagePath, Float minPrice, String categoryName) {
+    public ProductDTO(String name, String description, Float price, Float discountPrice, Integer quantity, String imagePath, Float minPrice, String categoryName) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.discountPrice = discountPrice;
         this.quantity = quantity;
         this.imagePath = imagePath;
         this.minPrice = minPrice;
@@ -84,5 +86,13 @@ public class ProductDTO {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Float getDiscountPrice() {
+        return discountPrice;
+    }
+
+    public void setDiscountPrice(Float discountPrice) {
+        this.discountPrice = discountPrice;
     }
 }

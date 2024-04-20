@@ -111,9 +111,6 @@ public class ShoppingCartServiceTest {
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
-        OrderItem orderItem = new OrderItem();
-        orderItem.setProduct(product);
-        orderItem.setQuantity(1);
 
         when(jwtUtil.extractUsername(token.substring(7))).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);

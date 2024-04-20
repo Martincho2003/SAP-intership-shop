@@ -110,13 +110,8 @@ public class ProductService {
     }
 
     public ProductDTO convertProductToDTO(Product product) {
-        if (product.getDiscountPrice().equals(product.getPrice())) {
-            return new ProductDTO(product.getName(), product.getDescription(), product.getPrice(),
+        return new ProductDTO(product.getName(), product.getDescription(), product.getPrice(), product.getDiscountPrice(),
                     product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName() );
-        } else {
-            return new ProductDTO(product.getName(), product.getDescription(), product.getDiscountPrice(),
-                    product.getQuantity(), product.getImagePath(), product.getMinPrice(), product.getCategory().getName());
-        }
     }
 
     public CategoryDTO convertCategoryToDTO(Category category){
