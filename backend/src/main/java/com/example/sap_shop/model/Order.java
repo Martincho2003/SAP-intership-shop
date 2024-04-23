@@ -1,6 +1,7 @@
 package com.example.sap_shop.model;
 
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,7 @@ public class Order {
     @Temporal(TemporalType.TIMESTAMP)
     private Date orderDate = new Date();
 
+    @Value("Pending")
     @Column(nullable = false)
     private String status;
 

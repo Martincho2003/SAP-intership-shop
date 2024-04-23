@@ -1,5 +1,6 @@
 package com.example.sap_shop.controller;
 
+import com.example.sap_shop.error.InvalidBuyException;
 import com.example.sap_shop.error.ShoppingCartDoesNotExistError;
 import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.service.OrderService;
@@ -29,6 +30,8 @@ public class OrderController {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (TokenExpiredException e) {
             return ResponseEntity.status(401).body(e.getMessage());
+        } catch (InvalidBuyException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
 }
