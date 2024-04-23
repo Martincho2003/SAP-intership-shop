@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ShoppingCartService {
@@ -69,9 +70,11 @@ public class ShoppingCartService {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setName(orderItem.getProduct().getName());
             productDTO.setQuantity(orderItem.getProduct().getQuantity());
+            productDTO.setImagePath(orderItem.getProduct().getImagePath());
             productDTO.setPrice(orderItem.getProduct().getPrice());
             productDTO.setDiscountPrice(orderItem.getProduct().getDiscountPrice());
             productDTO.setDescription(orderItem.getProduct().getDescription());
+            orderItemDTO.setId(orderItem.getId());
             orderItemDTO.setQuantity(orderItem.getQuantity());
             orderItemDTO.setProduct(productDTO);
             orderItemDTOS.add(orderItemDTO);
@@ -91,6 +94,11 @@ public class ShoppingCartService {
         }
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         List<OrderItem> orderItems = shoppingCart.getOrderItems();
+        for(OrderItem orderItem : orderItems){
+            if(orderItem.getProduct().getName().equals(orderItemDTO.getProduct().getName())){
+                throw new InvalidRequestBodyException("Product with name " + orderItemDTO.getProduct().getName() + "is already in your cart!");
+            }
+        }
         Product product = productRepository.findByName(orderItemDTO.getProduct().getName());
         if(product.getQuantity() < 1){
             throw new NotEnoughQuantityException("Sorry, but for this moment we do not have this quantity of the product.");
@@ -101,28 +109,22 @@ public class ShoppingCartService {
         OrderItem orderItem = new OrderItem();
         orderItem.setProduct(product);
         orderItem.setQuantity(1);
-        orderItemRepository.save(orderItem);
+        orderItem = orderItemRepository.save(orderItem);
         orderItems.add(orderItem);
         shoppingCart.setOrderItems(orderItems);
         shoppingCartRepository.save(shoppingCart);
     }
 
     @Transactional
-    public void removeProductFromShoppingCart(String token, OrderItemDTO orderItemDTO) throws TokenExpiredException, InvalidRequestBodyException {
+    public void removeProductFromShoppingCart(String token, String id) throws TokenExpiredException, InvalidRequestBodyException {
         checkTokenDate(token);
-        if(orderItemDTO.getProduct() == null){
-            throw new InvalidRequestBodyException("You don't have product to add!");
-        }
-        if(orderItemDTO.getProduct().getName() == null || orderItemDTO.getProduct().getName().equals("")){
-            throw new InvalidRequestBodyException("There is not product name to add!");
-        }
         ShoppingCart shoppingCart = shoppingCartRepository.findByUser(userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7))));
         List<OrderItem> orderItems = new ArrayList<>(shoppingCart.getOrderItems());
-        OrderItem orderItemToDelete = orderItemRepository.findByProduct(productRepository.findByName(orderItemDTO.getProduct().getName()));
-        orderItems.remove(orderItemToDelete);
+        Optional<OrderItem> orderItemToDelete = orderItemRepository.findById(Long.parseLong(id));
+        orderItems.remove(orderItemToDelete.get());
         shoppingCart.setOrderItems(orderItems);
-        orderItemRepository.delete(orderItemToDelete);
         shoppingCartRepository.save(shoppingCart);
+        orderItemRepository.delete(orderItemToDelete.get());
     }
 
     @Transactional
@@ -135,10 +137,10 @@ public class ShoppingCartService {
         if (product.getQuantity() < orderItemDTO.getQuantity()){
             throw new NotEnoughQuantityException("Sorry, but for this moment we do not have this quantity of the product.");
         }
-        OrderItem orderItemToChange = orderItemRepository.findByProduct(product);
-        orderItemToChange.setQuantity(orderItemDTO.getQuantity());
-        orderItemRepository.save(orderItemToChange);
-        orderItems.get(orderItems.indexOf(orderItemToChange)).setQuantity(orderItemDTO.getQuantity());
+        Optional<OrderItem> orderItemToChange = orderItemRepository.findById(orderItemDTO.getId());
+        orderItemToChange.get().setQuantity(orderItemDTO.getQuantity());
+        orderItemRepository.save(orderItemToChange.get());
+        orderItems.get(orderItems.indexOf(orderItemToChange.get())).setQuantity(orderItemDTO.getQuantity());
         shoppingCart.setOrderItems(orderItems);
         shoppingCartRepository.save(shoppingCart);
     }

@@ -5,6 +5,7 @@ import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.error.CategoryAlreadyExistsError;
 import com.example.sap_shop.error.CategoryNotFoundException;
 import com.example.sap_shop.error.FieldCannotBeEmptyException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
 import com.example.sap_shop.model.Category;
 import com.example.sap_shop.repository.CategoryRepository;
 import jakarta.transaction.Transactional;
@@ -32,17 +33,19 @@ public class CategoryService{
         }
 
         Category category = new Category();
-        if (categoryDTO.getName() != null) {
-            category.setName(categoryDTO.getName());
-            categoryRepository.save(category);
-        } else {
+        if (categoryDTO.getName() == null || categoryDTO.getName() == "") {
             throw new FieldCannotBeEmptyException("Field can not be empty!");
         }
+        category.setName(categoryDTO.getName());
+        categoryRepository.save(category);
     }
 
 
     @Transactional
-    public void deleteCategory(String name) throws CategoryNotFoundException {
+    public void deleteCategory(String name) throws CategoryNotFoundException, InvalidRequestBodyException {
+        if(name == null || name == ""){
+            throw new InvalidRequestBodyException("Field cannot be empty!");
+        }
 
         if (categoryRepository.findByName(name) == null) {
             throw new CategoryNotFoundException("Category with name " + name + " doesn't exist.");

@@ -18,12 +18,10 @@ import java.util.HashMap;
 public class UserController {
 
     private final UserService userService;
-    private final ShoppingCartService shoppingCartService;
 
     @Autowired
-    public UserController(UserService userService, ShoppingCartService shoppingCartService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.shoppingCartService = shoppingCartService;
     }
 
     @PostMapping(path="/signup")
@@ -63,6 +61,8 @@ public class UserController {
             userService.updateUser(token, userDto);
         } catch (TokenExpiredException e) {
             return ResponseEntity.status(403).body(e.getMessage());
+        } catch (UserAlreadyExistException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         }
         return ResponseEntity.ok("Success");
     }

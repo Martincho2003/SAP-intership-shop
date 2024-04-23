@@ -5,6 +5,7 @@ import com.example.sap_shop.dto.ProductDTO;
 import com.example.sap_shop.error.CategoryAlreadyExistsError;
 import com.example.sap_shop.error.CategoryNotFoundException;
 import com.example.sap_shop.error.FieldCannotBeEmptyException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
 import com.example.sap_shop.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,6 +65,8 @@ public class CategoryController {
             return ResponseEntity.ok().body("Category deleted successfully.");
         } catch (CategoryNotFoundException e) {
             return ResponseEntity.status(409).body(e.getMessage());
+        } catch (InvalidRequestBodyException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
     }
 }

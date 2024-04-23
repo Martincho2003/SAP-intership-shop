@@ -41,9 +41,10 @@ public class ShoppingCartController {
         return ResponseEntity.ok("Success");
     }
 
-    @DeleteMapping ResponseEntity<?> deleteProductFromShoppingCart(@RequestHeader("Authorization") String token, @RequestBody OrderItemDTO orderItemDTO){
+    @DeleteMapping ("/{id}")
+    ResponseEntity<?> deleteProductFromShoppingCart(@RequestHeader("Authorization") String token, @PathVariable String id){
         try {
-            shoppingCartService.removeProductFromShoppingCart(token, orderItemDTO);
+            shoppingCartService.removeProductFromShoppingCart(token, id);
         } catch (TokenExpiredException e) {
             return ResponseEntity.status(401).body(e.getMessage());
         } catch (InvalidRequestBodyException e) {
