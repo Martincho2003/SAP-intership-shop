@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -61,8 +62,8 @@ public class OrderService {
 
         List<OrderItem> orderList = new ArrayList<>();
         for (OrderItemDTO orderItemDTO : shoppingCartDTO.getOrderItemDTOS()) {
-            OrderItem orderItem = orderItemRepository.findByProductName(orderItemDTO.getProduct().getName());
-            orderList.add(orderItem);
+            Optional<OrderItem> orderItem = orderItemRepository.findById(orderItemDTO.getId());
+            orderList.add(orderItem.get());
             Product product = productRepository.findByName(orderItemDTO.getProduct().getName());
             product.setQuantity(product.getQuantity() - orderItemDTO.getQuantity());
             productRepository.save(product);

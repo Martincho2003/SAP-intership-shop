@@ -133,8 +133,14 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(String token, UserDto userDto) throws TokenExpiredException {
+    public void updateUser(String token, UserDto userDto) throws TokenExpiredException, UserAlreadyExistException {
         checkTokenDate(token);
+        if(userRepository.findByUsername(userDto.getUsername()) != null){
+            throw new UserAlreadyExistException("User with username " + userDto.getUsername() + " already exists!");
+        }
+        if(userRepository.findByEmail(userDto.getEmail()) != null){
+            throw new UserAlreadyExistException("User with email " + userDto.getEmail() + " already exists!");
+        }
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
