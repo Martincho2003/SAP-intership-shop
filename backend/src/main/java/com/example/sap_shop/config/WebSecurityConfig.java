@@ -46,7 +46,7 @@ public class WebSecurityConfig{
 
                     requests.requestMatchers("/user").hasAnyRole("ADMIN", "WORKER", "USER");
 
-                    requests.requestMatchers("/user/**", "/shopping-cart", "/shopping-cart/update").hasRole("USER");
+                    requests.requestMatchers("/user/**", "/shopping-cart", "/shopping-cart/update", "/order").hasRole("USER");
                     requests.anyRequest().authenticated();
 
                 })

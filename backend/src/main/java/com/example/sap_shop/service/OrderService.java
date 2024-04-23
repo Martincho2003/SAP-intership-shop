@@ -3,6 +3,8 @@ package com.example.sap_shop.service;
 import com.example.sap_shop.dto.OrderDTO;
 import com.example.sap_shop.dto.OrderItemDTO;
 import com.example.sap_shop.dto.ShoppingCartDTO;
+import com.example.sap_shop.error.InvalidBuyException;
+import com.example.sap_shop.error.InvalidRequestBodyException;
 import com.example.sap_shop.error.ShoppingCartDoesNotExistError;
 import com.example.sap_shop.error.TokenExpiredException;
 import com.example.sap_shop.model.*;
@@ -36,7 +38,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO buy(String token) throws ShoppingCartDoesNotExistError, TokenExpiredException {
+    public OrderDTO buy(String token) throws ShoppingCartDoesNotExistError, TokenExpiredException, InvalidBuyException {
         User user = userRepository.findByUsername(jwtUtil.extractUsername(token.substring(7)));
         List<Order> orders = user.getOrders();
         OrderDTO orderDTO = new OrderDTO();
@@ -59,8 +61,12 @@ public class OrderService {
         Order order = new Order();
         order.setOrderDate(orderDTO.getOrderDate());
         order.setStatus(orderDTO.getStatus());
+        order.setTotalPrice(totalPrice);
 
         List<OrderItem> orderList = new ArrayList<>();
+        if (shoppingCartDTO.getOrderItemDTOS().size() == 0) {
+            throw new InvalidBuyException("Your shopping cart is empty");
+        }
         for (OrderItemDTO orderItemDTO : shoppingCartDTO.getOrderItemDTOS()) {
             Optional<OrderItem> orderItem = orderItemRepository.findById(orderItemDTO.getId());
             orderList.add(orderItem.get());
@@ -70,10 +76,17 @@ public class OrderService {
         }
         order.setOrderItems(orderList);
 
+        order = orderRepository.save(order);
+        for(OrderItem orderItem : orderList){
+            try {
+                shoppingCartService.removeProductFromShoppingCart(token, orderItem.getId().toString());
+            } catch (InvalidRequestBodyException e) {
+                throw new RuntimeException(e);
+            }
+        }
         orders.add(order);
         user.setOrders(orders);
         userRepository.save(user);
-        orderRepository.save(order);
         return orderDTO;
     }
 }

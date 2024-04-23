@@ -23,8 +23,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -108,23 +110,23 @@ public class ShoppingCartServiceTest {
         String token = "Bearer validToken";
         ProductDTO productDTO = createMockedProductDTO();
         OrderItemDTO orderItemDTO = new OrderItemDTO(1L,productDTO, 1);
+      
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
 
-        when(jwtUtil.extractUsername(token.substring(7))).thenReturn("username");
+        when(jwtUtil.extractUsername("validToken")).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);
         when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
-        when(productRepository.findByName(orderItemDTO.getProduct().getName())).thenReturn(product);
-        when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
+        when(productRepository.findByName(productDTO.getName())).thenReturn(product);
+        when(jwtUtil.extractExpiration("validToken")).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token is valid
 
         shoppingCartService.addProductToShoppingCart(token, orderItemDTO);
 
-        verify(orderItemRepository, times(1)).save(any(OrderItem.class));
-        verify(shoppingCartRepository, times(1)).save(shoppingCartArgumentCaptor.capture());
-
-        assertEquals(shoppingCartArgumentCaptor.getValue().getOrderItems().size(), 1);
-        assertEquals(shoppingCartArgumentCaptor.getValue().getOrderItems().get(0).getProduct().getName(), product.getName());
+        verify(orderItemRepository).save(any(OrderItem.class));
+        verify(shoppingCartRepository).save(any(ShoppingCart.class));
+        assertEquals(1, shoppingCart.getOrderItems().size());
+        assertEquals("Product1", shoppingCart.getOrderItems().get(0).getProduct().getName());
     }
 
     @Test
@@ -178,21 +180,22 @@ public class ShoppingCartServiceTest {
     @Test
     void removeProductFromShoppingCartSuccessfully() throws Exception {
         String token = "Bearer validToken";
+
         ProductDTO productDTO = new ProductDTO("Product1", 10, 100.0f, "Description1");
+
         OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
         OrderItem orderItem = new OrderItem();
-        orderItem.setQuantity(1);
+        orderItem.setId(1L);
         orderItem.setProduct(product);
         shoppingCart.setOrderItems(Arrays.asList(orderItem));
 
         when(jwtUtil.extractUsername(token.substring(7))).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);
         when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
-        when(productRepository.findByName(orderItemDTO.getProduct().getName())).thenReturn(product);
-        when(orderItemRepository.findByProduct(product)).thenReturn(orderItem);
+        when(orderItemRepository.findById(1L)).thenReturn(Optional.of(orderItem));
         when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
         shoppingCartService.removeProductFromShoppingCart(token, "1");
@@ -200,31 +203,58 @@ public class ShoppingCartServiceTest {
         verify(orderItemRepository, times(1)).delete(orderItem);
         verify(shoppingCartRepository, times(1)).save(shoppingCartArgumentCaptor.capture());
 
-        assertEquals(shoppingCartArgumentCaptor.getValue().getOrderItems().size(), 0);
+        assertTrue(shoppingCartArgumentCaptor.getValue().getOrderItems().isEmpty());
     }
 
     @Test
     void removeProductFromShoppingCartThrowsInvalidRequestBodyExceptionForNullProduct() {
         String token = "Bearer validToken";
+
+        User user = new User();
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setOrderItems(new ArrayList<>()); // Ensure no order items
+
         OrderItemDTO orderItemDTO = new OrderItemDTO(1L, null, 1);
 
-        when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
+        when(jwtUtil.extractUsername(anyString())).thenReturn("username");
+        when(userRepository.findByUsername("username")).thenReturn(user);
+        when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
+        when(jwtUtil.extractExpiration(anyString())).thenReturn(new Date(System.currentTimeMillis() + 10000));
+        when(orderItemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        assertThrows(InvalidRequestBodyException.class, () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
-                "You don't have product to add!");
+
+        assertThrows(InvalidRequestBodyException.class,
+                () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
+                "Product cannot be null!");
+
     }
+
 
     @Test
-    void removeProductFromShoppingCartThrowsInvalidRequestBodyExceptionForEmptyProductName() {
+    void removeProductFromShoppingCartThrowsInvalidRequestBodyExceptionForNonExistentProduct() {
         String token = "Bearer validToken";
+
         ProductDTO productDTO = new ProductDTO("", 10, 100.0f, "Description1"); // Product name is empty
+
+        User user = new User();
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setOrderItems(new ArrayList<>());
+
         OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
 
-        when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
-        assertThrows(InvalidRequestBodyException.class, () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
-                "There is not product name to add!");
+        when(jwtUtil.extractUsername(anyString())).thenReturn("username");
+        when(userRepository.findByUsername("username")).thenReturn(user);
+        when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
+        when(jwtUtil.extractExpiration(anyString())).thenReturn(new Date(System.currentTimeMillis() + 10000));
+        when(orderItemRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(InvalidRequestBodyException.class,
+                () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
+                "Product with provided ID does not exist in the cart.");
+
     }
+
 
     @Test
     void changeProductQuantityToShoppingCartSuccessfully() throws Exception {
@@ -235,22 +265,23 @@ public class ShoppingCartServiceTest {
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
         OrderItem orderItem = new OrderItem();
+        orderItem.setId(1L); // Setting ID for the OrderItem
         orderItem.setProduct(product);
         orderItem.setQuantity(2);
         shoppingCart.setOrderItems(Arrays.asList(orderItem));
 
-        when(jwtUtil.extractUsername(token.substring(7))).thenReturn("username");
+        when(jwtUtil.extractUsername("validToken")).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);
         when(shoppingCartRepository.findByUser(user)).thenReturn(shoppingCart);
-        when(productRepository.findByName(orderItemDTO.getProduct().getName())).thenReturn(product);
-        when(orderItemRepository.findByProduct(product)).thenReturn(orderItem);
-        when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
+        when(productRepository.findByName(productDTO.getName())).thenReturn(product);
+        when(orderItemRepository.findById(1L)).thenReturn(Optional.of(orderItem));
+        when(jwtUtil.extractExpiration("validToken")).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token is valid
 
         shoppingCartService.changeProductQuantityToShoppingCart(token, orderItemDTO);
 
-        verify(orderItemRepository, times(1)).save(orderItem);
-        verify(shoppingCartRepository, times(1)).save(shoppingCart);
-        assertEquals(orderItemDTO.getQuantity(), orderItem.getQuantity());
+        verify(orderItemRepository).save(orderItem);
+        verify(shoppingCartRepository).save(shoppingCart);
+        assertEquals(5, orderItem.getQuantity(), "The product quantity should be updated correctly.");
     }
 
     @Test
