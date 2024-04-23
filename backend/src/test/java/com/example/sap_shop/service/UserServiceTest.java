@@ -303,7 +303,7 @@ public class UserServiceTest {
 
         try {
             userService.updateUser(token, userDto);
-        } catch (TokenExpiredException e) {
+        } catch (TokenExpiredException | UserAlreadyExistException e) {
             e.printStackTrace();
         }
 

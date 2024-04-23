@@ -109,11 +109,8 @@ public class ShoppingCartServiceTest {
     void addProductToShoppingCartSuccessfully() throws Exception {
         String token = "Bearer validToken";
         ProductDTO productDTO = createMockedProductDTO();
-<<<<<<< Updated upstream
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 1);
-=======
-        OrderItemDTO orderItemDTO = new OrderItemDTO(null, productDTO, 1); // No initial ID for OrderItem
->>>>>>> Stashed changes
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L,productDTO, 1);
+      
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
@@ -136,7 +133,7 @@ public class ShoppingCartServiceTest {
     void addProductToShoppingCartThrowsNotEnoughQuantityException() {
         String token = "Bearer validToken";
         ProductDTO productDTO = new ProductDTO("Product1", 0, 100.0f, "Description1"); // Quantity is 0
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 1);
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = new Product();
@@ -160,7 +157,7 @@ public class ShoppingCartServiceTest {
     void addProductToShoppingCartThrowsInvalidRequestBodyExceptionForNullProductName() {
         String token = "Bearer validToken";
         ProductDTO productDTO = new ProductDTO(null, 10, 100.0f, "Description1"); // Product name is empty
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 0); // Quantity is 0
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 0); // Quantity is 0
 
         when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
@@ -172,7 +169,7 @@ public class ShoppingCartServiceTest {
     void addProductToShoppingCartThrowsInvalidRequestBodyExceptionForEmptyProductName() {
         String token = "Bearer validToken";
         ProductDTO productDTO = new ProductDTO("", 10, 100.0f, "Description1"); // Product name is empty
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 1);
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
 
         when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
@@ -183,11 +180,10 @@ public class ShoppingCartServiceTest {
     @Test
     void removeProductFromShoppingCartSuccessfully() throws Exception {
         String token = "Bearer validToken";
-<<<<<<< Updated upstream
+
         ProductDTO productDTO = new ProductDTO("Product1", 10, 100.0f, "Description1");
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 1);
-=======
->>>>>>> Stashed changes
+
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
@@ -202,7 +198,7 @@ public class ShoppingCartServiceTest {
         when(orderItemRepository.findById(1L)).thenReturn(Optional.of(orderItem));
         when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
-        shoppingCartService.removeProductFromShoppingCart(token, orderItemDTO);
+        shoppingCartService.removeProductFromShoppingCart(token, "1");
 
         verify(orderItemRepository, times(1)).delete(orderItem);
         verify(shoppingCartRepository, times(1)).save(shoppingCartArgumentCaptor.capture());
@@ -213,13 +209,12 @@ public class ShoppingCartServiceTest {
     @Test
     void removeProductFromShoppingCartThrowsInvalidRequestBodyExceptionForNullProduct() {
         String token = "Bearer validToken";
-<<<<<<< Updated upstream
-        OrderItemDTO orderItemDTO = new OrderItemDTO(null, 1);
-=======
+
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setOrderItems(new ArrayList<>()); // Ensure no order items
->>>>>>> Stashed changes
+
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, null, 1);
 
         when(jwtUtil.extractUsername(anyString())).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);
@@ -227,28 +222,26 @@ public class ShoppingCartServiceTest {
         when(jwtUtil.extractExpiration(anyString())).thenReturn(new Date(System.currentTimeMillis() + 10000));
         when(orderItemRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-<<<<<<< Updated upstream
-        assertThrows(InvalidRequestBodyException.class, () -> shoppingCartService.removeProductFromShoppingCart(token, orderItemDTO),
-                "You don't have product to add!");
-=======
+
         assertThrows(InvalidRequestBodyException.class,
                 () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
                 "Product cannot be null!");
->>>>>>> Stashed changes
+
     }
 
 
     @Test
     void removeProductFromShoppingCartThrowsInvalidRequestBodyExceptionForNonExistentProduct() {
         String token = "Bearer validToken";
-<<<<<<< Updated upstream
+
         ProductDTO productDTO = new ProductDTO("", 10, 100.0f, "Description1"); // Product name is empty
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 1);
-=======
+
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setOrderItems(new ArrayList<>());
->>>>>>> Stashed changes
+
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 1);
+
 
         when(jwtUtil.extractUsername(anyString())).thenReturn("username");
         when(userRepository.findByUsername("username")).thenReturn(user);
@@ -256,14 +249,10 @@ public class ShoppingCartServiceTest {
         when(jwtUtil.extractExpiration(anyString())).thenReturn(new Date(System.currentTimeMillis() + 10000));
         when(orderItemRepository.findById(1L)).thenReturn(Optional.empty());
 
-<<<<<<< Updated upstream
-        assertThrows(InvalidRequestBodyException.class, () -> shoppingCartService.removeProductFromShoppingCart(token, orderItemDTO),
-                "There is not product name to add!");
-=======
         assertThrows(InvalidRequestBodyException.class,
                 () -> shoppingCartService.removeProductFromShoppingCart(token, "1"),
                 "Product with provided ID does not exist in the cart.");
->>>>>>> Stashed changes
+
     }
 
 
@@ -271,7 +260,7 @@ public class ShoppingCartServiceTest {
     void changeProductQuantityToShoppingCartSuccessfully() throws Exception {
         String token = "Bearer validToken";
         ProductDTO productDTO = createMockedProductDTO();
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 5);
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 5);
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
@@ -299,7 +288,7 @@ public class ShoppingCartServiceTest {
     void changeProductQuantityToShoppingCartThrowsNotEnoughQuantityException() {
         String token = "Bearer validToken";
         ProductDTO productDTO = createMockedProductDTO();
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, 15);
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, 15);
         User user = new User();
         ShoppingCart shoppingCart = new ShoppingCart();
         Product product = createMockedProduct();
@@ -318,7 +307,7 @@ public class ShoppingCartServiceTest {
     void changeProductQuantityToShoppingCartThrowsInvalidRequestBodyExceptionForInvalidQuantity() {
         String token = "Bearer validToken";
         ProductDTO productDTO = createMockedProductDTO();
-        OrderItemDTO orderItemDTO = new OrderItemDTO(productDTO, -1); // Invalid quantity
+        OrderItemDTO orderItemDTO = new OrderItemDTO(1L, productDTO, -1); // Invalid quantity
 
         when(jwtUtil.extractExpiration(token.substring(7))).thenReturn(new Date(System.currentTimeMillis() + 10000)); // Token expires in 10 seconds
 
